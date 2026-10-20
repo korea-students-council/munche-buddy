@@ -36,15 +36,34 @@ npm test                    # 빙고·순위·추첨·시간 계산 단위 테�
 5. 디스코드 개발자 모드를 켜고 서버·**공지 채널**·**인증 채널** ID를 복사해 어드민 → **시즌 설정**에 입력
 6. `DISCORD_GUILD_ID`를 넣으면 해당 서버 멤버만 로그인할 수 있어요. `ADMIN_DISCORD_IDS`에 운영진 디스코드 ID를 넣으면 최초 로그인 시 어드민이 돼요.
 
-## 배포 (권장 구성)
+## 배포 (Railway 한 곳에 웹 + 봇 + DB)
 
-| 대상 | 서비스 | 설정 |
-| --- | --- | --- |
-| 웹 | Vercel | Build Command `prisma migrate deploy && next build`, 환경변수 등록 |
-| DB | Neon / Supabase (Postgres) | `DATABASE_URL` |
-| 봇 | Railway / Fly.io 등 상시 구동 | Start Command `npm run bot` (같은 환경변수 + `DISCORD_BOT_TOKEN`) |
+`Dockerfile`이 웹과 봇을 한 컨테이너에서 함께 실행해요. 시작할 때 DB 마이그레이션도 자동으로 해요. (`scripts/start.sh`)
 
-봇은 24시간 켜져 있어야 인증을 감지하고 미션을 공지합니다. 봇이 꺼져 있는 동안의 인증 메시지는 처리되지 않으니 주의하세요.
+1. [Railway](https://railway.com)에 GitHub로 가입 → **New Project → Deploy from GitHub repo** → 이 저장소 선택
+2. 서비스 **Settings → Source → Root Directory**를 `app`으로 설정
+3. 같은 프로젝트에서 **+ New → Database → PostgreSQL** 추가
+4. 앱 서비스 **Variables**에 아래를 등록 (`DATABASE_URL`은 `${{Postgres.DATABASE_URL}}` 참조로 연결)
+
+| 변수 | 값 |
+| --- | --- |
+| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` |
+| `SESSION_SECRET` | 32자 이상 랜덤 문자열 (`openssl rand -base64 32`) |
+| `APP_URL` | 발급된 도메인 (예: `https://xxx.up.railway.app`, 끝에 `/` 없이) |
+| `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET` | 개발자 포털 OAuth2 |
+| `DISCORD_BOT_TOKEN` | 개발자 포털 Bot |
+| `DISCORD_GUILD_ID` | 참여 서버 ID |
+| `ADMIN_DISCORD_IDS` | 운영진 디스코드 ID (쉼표 구분) |
+| `DEV_LOGIN` | `false` (반드시) |
+
+5. **Settings → Networking → Generate Domain**으로 주소를 만들고, 그 주소를 `APP_URL`에 넣은 뒤 재배포
+6. 개발자 포털 **OAuth2 → Redirects**에 `{APP_URL}/api/auth/callback` 추가
+7. 첫 로그인한 `ADMIN_DISCORD_IDS` 계정으로 어드민 → 시즌 설정부터 진행
+
+> 봇은 서버가 켜져 있는 동안만 동작해요. 봇이 죽으면 5초 뒤 자동으로 다시 시작되고, 웹은 계속 동작해요.
+> 데모 데이터(`npm run db:seed`)는 운영 DB에 넣지 마세요.
+
+Vercel(웹) + Neon(DB) + 별도 봇 서버로 나눠 배포해도 돼요. 이때 Vercel Build Command는 `prisma migrate deploy && next build`, Root Directory는 `app`이에요.
 
 ## 운영 체크리스트
 
