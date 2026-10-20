@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MissionType {
+  /// 비대면: 매일 1개 공지, 공지 당일 23:59까지 인증
+  REMOTE
+  /// 대면: 시작일에 일괄 공지, 최종 마감 전까지 인증
+  FACE
+}
+
+enum TeamColor {
+  MINT
+  PINK
+}
+
+enum SubmissionStatus {
+  ACCEPTED
+  REJECTED
+}
+
+enum SubmissionSource {
+  DISCORD
+  MANUAL
+}
+
+enum WinnerKind {
+  FIRST
+  SECOND
+  RAFFLE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  discordId String   @unique
+  name      String
+  avatar    String?
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  memberships TeamMember[]
+  submissions Submission[] @relation("Submitter")
+  reviewed    Submission[] @relation("Reviewer")
+}
+
+model Event {
+  id                String    @id @default(cuid())
+  name              String
+  startAt           DateTime
+  /// 최종 마감 시각 (대면 미션 인증 마감)
+  endAt             DateTime
+  guildId           String?
+  announceChannelId String?
+  verifyChannelId   String?
+  prize1            String    @default("")
+  prize2            String    @default("")
+  prizeRaffle       String    @default("")
+  isActive          Boolean   @default(false)
+  /// 대면 미션 일괄 공지를 보낸 시각
+  faceAnnouncedAt   DateTime?
+  finalizedAt       DateTime?
+  createdAt         DateTime  @default(now())
+
+  missions    Mission[]
+  teams       Team[]
+  members     TeamMember[]
+  submissions Submission[]
+  winners     Winner[]
+}
+
+model Mission {
+  id           String      @id @default(cuid())
+  eventId      String
+  /// `/인증 12` 처럼 번호로 인증한다. 시즌 안에서 유일
+  number       Int
+  type         MissionType @default(REMOTE)
+  title        String
+  description  String      @default("")
+  requirePhoto Boolean     @default(true)
+  /// 비대면 미션만: 공지 날짜 (KST, YYYY-MM-DD)
+  day          String?
+  publishAt    DateTime?
+  deadlineAt   DateTime?
+  announcedAt  DateTime?
+  createdAt    DateTime    @default(now())
+
+  event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  cells       TeamCell[]
+  submissions Submission[]
+
+  @@unique([eventId, number])
+  @@unique([eventId, day])
+}
+
+model Team {
+  id          String    @id @default(cuid())
+  eventId     String
+  /// 조 번호 (운영진이 편성)
+  number      Int
+  /// 팀원들이 빙고판을 제출할 때 정한다
+  name        String    @default("")
+  color       TeamColor @default(MINT)
+  submittedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  members     TeamMember[]
+  cells       TeamCell[]
+  submissions Submission[]
+  winners     Winner[]
+
+  @@unique([eventId, number])
+}
+
+model TeamMember {
+  id      String @id @default(cuid())
+  eventId String
+  teamId  String
+  userId  String
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  team  Team  @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// 한 시즌에 한 팀에만 속할 수 있다
+  @@unique([eventId, userId])
+}
+
+model TeamCell {
+  id        String @id @default(cuid())
+  teamId    String
+  position  Int
+  missionId String
+
+  team    Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, position])
+  @@unique([teamId, missionId])
+}
+
+model Submission {
+  id             String           @id @default(cuid())
+  eventId        String
+  teamId         String
+  /// 인증을 올린 팀원 (운영진 수동 인증이면 null)
+  userId         String?
+  missionId      String
+  source         SubmissionSource @default(DISCORD)
+  /// 중복 처리 방지용 고유값 (디스코드: 슬래시 명령 interaction id)
+  externalId     String           @unique
+  channelId      String           @default("")
+  /// 봇이 인증 내용을 다시 올린 메시지 id (사진 보관·삭제 감지용)
+  replyMessageId String?
+  attachmentUrls String[]
+  postedAt       DateTime
+  status         SubmissionStatus @default(ACCEPTED)
+  rejectReason   String?
+  reviewedById   String?
+  reviewedAt     DateTime?
+  createdAt      DateTime         @default(now())
+
+  event    Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  team     Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user     User?   @relation("Submitter", fields: [userId], references: [id])
+  mission  Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  reviewer User?   @relation("Reviewer", fields: [reviewedById], references: [id])
+
+  @@index([eventId, teamId, missionId])
+  @@index([eventId, status])
+  @@index([replyMessageId])
+}
+
+model Winner {
+  id         String     @id @default(cuid())
+  eventId    String
+  kind       WinnerKind
+  teamId     String
+  lines      Int
+  filled     Int
+  faceCount  Int
+  snapshotAt DateTime   @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  team  Team  @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, kind])
+}
