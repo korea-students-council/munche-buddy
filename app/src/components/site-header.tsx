@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
-import { Mascot } from "./mascot";
+import { Logo } from "./logo";
 import { Avatar, btn } from "./ui";
 import { BottomNav } from "./bottom-nav";
 
@@ -18,12 +18,7 @@ export async function SiteHeader() {
     <>
       <header className="sticky top-0 z-30 border-b-2 border-ink bg-bg/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-2.5">
-          <Link href="/" className="flex items-center gap-2" aria-label="짝꽁 빙고 홈">
-            <Mascot size={36} />
-            <span className="font-display text-2xl leading-none">
-              짝꽁 <span className="rounded-lg bg-sun px-1.5">빙고</span>
-            </span>
-          </Link>
+          <Logo />
           <nav className="hidden items-center gap-1 md:flex" aria-label="주 메뉴">
             {NAV.map((n) => (
               <Link key={n.href} href={n.href} className="rounded-full px-3.5 py-1.5 text-sm font-bold hover:bg-sun-soft">

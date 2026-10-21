@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge, EmptyState, Notice, PageTitle } from "@/components/ui";
 import { db } from "@/lib/db";
 import { getActiveEvent } from "@/lib/event";
@@ -31,14 +32,14 @@ export default async function RankingPage() {
       ) : (
         <div className="card overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[34rem] text-sm">
+            <table className="w-full text-sm">
               <thead className="border-b-2 border-ink bg-sun-soft text-xs">
                 <tr>
                   <th className="w-14 px-3 py-3 text-center">순위</th>
                   <th className="px-3 py-3 text-left">팀</th>
-                  <th className="px-3 py-3 text-right">빙고 줄</th>
-                  <th className="px-3 py-3 text-right">채운 칸</th>
-                  <th className="px-3 py-3 text-right">대면</th>
+                  <th className="hidden px-3 py-3 text-right sm:table-cell">빙고 줄</th>
+                  <th className="hidden px-3 py-3 text-right sm:table-cell">채운 칸</th>
+                  <th className="hidden px-3 py-3 text-right sm:table-cell">대면</th>
                 </tr>
               </thead>
               <tbody>
@@ -53,21 +54,24 @@ export default async function RankingPage() {
                       <td className="font-display px-3 py-3 text-center text-lg">{medal ?? s.rank}</td>
                       <td className="px-3 py-3">
                         <span className="flex flex-wrap items-center gap-x-2">
-                          <b>
+                          <Link href={`/teams/${s.teamId}`} className="font-bold underline decoration-2 underline-offset-4 hover:bg-sun-soft">
                             {s.number}조 {s.name}
-                          </b>
+                          </Link>
                           {mine && <Badge tone="sun">우리 팀</Badge>}
                         </span>
-                        <span className="block text-xs text-muted">{s.members.join(" · ")}</span>
+                        <span className="block text-xs text-muted">{s.members.join(" · ")} · 빙고판 보기 ›</span>
+                        <span className="mt-1 block text-xs font-black sm:hidden">
+                          빙고 {s.lines}/{maxLines(BOARD_SIZE)}줄 · {s.filled}/{CELL_COUNT}칸 · 대면 {s.faceCount}/{FACE_COUNT}
+                        </span>
                       </td>
-                      <td className="px-3 py-3 text-right font-black">
+                      <td className="hidden px-3 py-3 text-right font-black sm:table-cell">
                         {s.lines}
                         <span className="font-medium text-muted"> / {maxLines(BOARD_SIZE)}</span>
                       </td>
-                      <td className="px-3 py-3 text-right text-muted">
+                      <td className="hidden px-3 py-3 text-right text-muted sm:table-cell">
                         {s.filled} / {CELL_COUNT}
                       </td>
-                      <td className="px-3 py-3 text-right text-muted">
+                      <td className="hidden px-3 py-3 text-right text-muted sm:table-cell">
                         {s.faceCount} / {FACE_COUNT}
                       </td>
                     </tr>

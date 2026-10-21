@@ -1,4 +1,4 @@
-import { Avatar, Badge, BingoGrid, Card, EmptyState, Notice, PageTitle, btn } from "@/components/ui";
+import { Avatar, Badge, BingoGrid, Card, EmptyState, Notice, PageTitle, StatCard, btn } from "@/components/ui";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { eventPhase, getActiveEvent, getTodayRemoteMission } from "@/lib/event";
@@ -117,10 +117,10 @@ export default async function BoardPage() {
       {header}
 
       <div className="mb-5 grid grid-cols-4 gap-1.5 sm:gap-3">
-        <Stat label="현재 순위" value={me ? `${me.rank}위` : "-"} sub={`${standings.length}팀 중`} bg="bg-sun-soft" />
-        <Stat label="빙고 줄" value={`${state.evaluation.lines}`} sub={`최대 ${maxLines(BOARD_SIZE)}줄`} bg="bg-mint-soft" />
-        <Stat label="채운 칸" value={`${state.evaluation.filled}`} sub={`/ ${CELL_COUNT}칸`} bg="bg-pink-soft" />
-        <Stat label="대면 미션" value={`${state.evaluation.faceCount}`} sub={`/ ${FACE_COUNT}개`} bg="bg-sky-soft" />
+        <StatCard label="현재 순위" value={me ? `${me.rank}위` : "-"} sub={`${standings.length}팀 중`} bg="bg-sun-soft" />
+        <StatCard label="빙고 줄" value={`${state.evaluation.lines}`} sub={`최대 ${maxLines(BOARD_SIZE)}줄`} bg="bg-mint-soft" />
+        <StatCard label="채운 칸" value={`${state.evaluation.filled}`} sub={`/ ${CELL_COUNT}칸`} bg="bg-pink-soft" />
+        <StatCard label="대면 미션" value={`${state.evaluation.faceCount}`} sub={`/ ${FACE_COUNT}개`} bg="bg-sky-soft" />
       </div>
 
       {phase === "running" && (
@@ -169,15 +169,5 @@ export default async function BoardPage() {
         ★ 칸은 {TYPE_LABEL.FACE} 미션 칸이에요. 운영진 검수로 인증이 반려되면 칸이 다시 비워질 수 있어요.
       </p>
     </>
-  );
-}
-
-function Stat({ label, value, sub, bg }: { label: string; value: string; sub: string; bg: string }) {
-  return (
-    <div className={`card px-1 py-2 text-center sm:p-4 ${bg}`}>
-      <p className="text-[10px] font-bold text-muted sm:text-xs">{label}</p>
-      <p className="font-display text-xl leading-tight sm:mt-0.5 sm:text-3xl">{value}</p>
-      <p className="text-[10px] text-muted sm:text-xs">{sub}</p>
-    </div>
   );
 }

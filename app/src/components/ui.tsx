@@ -152,3 +152,14 @@ export function BingoGrid({
     </div>
   );
 }
+
+/** 통계 카드 (모바일에서는 4개가 한 줄에 들어가도록 촘촘하게) */
+export function StatCard({ label, value, sub, bg }: { label: string; value: string; sub: string; bg: string }) {
+  return (
+    <div className={`card px-1 py-2 text-center sm:p-4 ${bg}`}>
+      <p className="text-[10px] font-bold text-muted sm:text-xs">{label}</p>
+      <p className="font-display text-xl leading-tight sm:mt-0.5 sm:text-3xl">{value}</p>
+      <p className="text-[10px] text-muted sm:text-xs">{sub}</p>
+    </div>
+  );
+}

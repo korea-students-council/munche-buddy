@@ -126,6 +126,9 @@ client.on(Events.MessageDelete, async (message) => {
   }
 });
 
+client.on(Events.Error, (err) => console.error("[client] 오류", err));
+client.on(Events.ShardError, (err) => console.error("[shard] 연결 오류", err));
+
 client.once(Events.ClientReady, async (c) => {
   console.log(`[ready] ${c.user.tag} 로 접속했어요.`);
   await registerCommands().catch((e) => console.error("[commands] 등록 실패", e));

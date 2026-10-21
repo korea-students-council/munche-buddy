@@ -189,7 +189,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           ) : (
             <ol className="space-y-2">
               {top.map((t) => (
-                <li key={t.teamId} className="flex items-center gap-3 rounded-2xl border-2 border-ink bg-white px-3 py-2">
+                <li key={t.teamId}>
+                  <Link href={`/teams/${t.teamId}`} className="flex items-center gap-3 rounded-2xl border-2 border-ink bg-white px-3 py-2 hover:bg-sun-soft">
                   <span className="font-display w-6 text-center text-xl">{t.rank}</span>
                   <span className="flex-1 truncate text-sm font-bold">
                     {t.number}조 {t.name}
@@ -197,6 +198,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                   <span className="text-xs font-bold text-muted">
                     {t.lines}/{maxLines(BOARD_SIZE)}줄 · {t.filled}칸
                   </span>
+                  </Link>
                 </li>
               ))}
             </ol>
