@@ -50,8 +50,8 @@ npm test                    # 빙고·순위·추첨·시간 계산 단위 테�
 
 | 변수 | 값 |
 | --- | --- |
-| `SESSION_SECRET` | 32자 이상 랜덤 문자열 (`openssl rand -base64 32`) |
-| `CRON_SECRET` | 랜덤 문자열 (Vercel 크론이 자동으로 이 값을 헤더에 붙여 호출해요) |
+| `SESSION_SECRET` | (선택) 32자 이상 랜덤 문자열. 비워 두면 DB 정보로 자동 생성 |
+| `CRON_SECRET` | (선택) 랜덤 문자열. 있어야 매일 7시 자동 공지가 켜져요 (Vercel 크론이 자동으로 헤더에 붙여요) |
 | `APP_URL` | 배포 주소 (예: `https://xxx.vercel.app`, 끝에 `/` 없이) |
 | `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET` | 개발자 포털 OAuth2 |
 | `DISCORD_PUBLIC_KEY` | 개발자 포털 General Information의 Public Key |

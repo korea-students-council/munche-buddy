@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { createHash } from "node:crypto";
 import { SignJWT, jwtVerify } from "jose";
 import type { User } from "@prisma/client";
 import { db } from "./db";
@@ -10,9 +11,13 @@ export const SESSION_COOKIE = "jk_session";
 const MAX_AGE_SEC = 60 * 60 * 24 * 30;
 
 function key() {
-  const secret = process.env.SESSION_SECRET;
+  let secret = process.env.SESSION_SECRET;
   if (!secret || secret.length < 32) {
-    throw new Error("SESSION_SECRET 환경변수가 없거나 32자 미만입니다.");
+    // SESSION_SECRET이 없으면 DB 접속 정보(비밀번호 포함)로부터 서명키를 만든다.
+    // DB 접속 정보가 새면 어차피 DB 전체가 노출되므로 안전성은 같고, 설정 한 가지를 줄일 수 있다.
+    const dbUrl = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
+    if (!dbUrl) throw new Error("SESSION_SECRET(32자 이상) 또는 DATABASE_URL 환경변수가 필요합니다.");
+    secret = createHash("sha256").update(`jjakkkong-session:${dbUrl}`).digest("hex");
   }
   return new TextEncoder().encode(secret);
 }
