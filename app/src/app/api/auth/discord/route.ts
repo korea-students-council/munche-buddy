@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
   url.searchParams.set("response_type", "code");
   url.searchParams.set("scope", "identify");
   url.searchParams.set("state", state);
-  url.searchParams.set("prompt", "none");
+  // 이미 승인한 사람은 승인 화면 없이 통과(none). 처음이거나 다시 시도(consent=1)면 승인 화면을 보여준다.
+  if (req.nextUrl.searchParams.get("consent") !== "1") url.searchParams.set("prompt", "none");
 
   const res = NextResponse.redirect(url);
   res.cookies.set(OAUTH_COOKIE, JSON.stringify({ state, next }), {

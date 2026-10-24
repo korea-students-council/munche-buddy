@@ -27,8 +27,6 @@ async function isGuildMember(userId: string): Promise<boolean | null> {
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
   const state = req.nextUrl.searchParams.get("state");
-  if (req.nextUrl.searchParams.get("error")) return fail("oauth_denied");
-  if (!code || !state) return fail("oauth_failed");
 
   let saved: { state: string; next: string } | null = null;
   try {
@@ -36,6 +34,19 @@ export async function GET(req: NextRequest) {
   } catch {
     saved = null;
   }
+
+  const error = req.nextUrl.searchParams.get("error");
+  if (error) {
+    // prompt=none 은 처음 로그인하는 사람에게는 승인 화면 없이 실패로 돌아온다 → 승인 화면을 띄워 다시 시도
+    if (["consent_required", "interaction_required", "login_required"].includes(error) && saved && saved.state === state) {
+      const retry = new URL("/api/auth/discord", appUrl());
+      retry.searchParams.set("consent", "1");
+      retry.searchParams.set("next", safeNext(saved.next));
+      return NextResponse.redirect(retry);
+    }
+    return fail("oauth_denied");
+  }
+  if (!code || !state) return fail("oauth_failed");
   if (!saved || saved.state !== state) return fail("oauth_state");
 
   const tokenRes = await fetch("https://discord.com/api/v10/oauth2/token", {
