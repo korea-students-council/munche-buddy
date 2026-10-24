@@ -3,7 +3,8 @@ import { Flash } from "@/components/flash";
 import { db } from "@/lib/db";
 import { PHASE_LABEL, eventPhase, getActiveEvent } from "@/lib/event";
 import { formatKst, toKstInput } from "@/lib/time";
-import { activateEvent, saveEvent } from "../actions";
+import { appUrl } from "@/lib/env";
+import { activateEvent, registerSlashCommand, runAnnounceNow, saveEvent } from "../actions";
 
 export default async function EventPage({
   searchParams,
@@ -84,6 +85,36 @@ export default async function EventPage({
         </div>
       </form>
 
+
+      {!creating && (
+        <Card className="mt-8 space-y-4">
+          <h2 className="font-black">디스코드 /인증 연결</h2>
+          <p className="text-sm text-muted">
+            개발자 포털 → General Information → <b>Interactions Endpoint URL</b>에 아래 주소를 붙여 넣고 저장하면, 디스코드가 /인증 명령을 이 서비스로 보내줘요.
+          </p>
+          <code className="block break-all rounded-xl border-2 border-ink bg-sun-soft px-3 py-2 text-sm font-bold">
+            {appUrl()}/api/discord/interactions
+          </code>
+          <ul className="grid gap-1 text-sm sm:grid-cols-2">
+            <Status ok={!!process.env.DISCORD_PUBLIC_KEY} label="DISCORD_PUBLIC_KEY (포털의 Public Key)" />
+            <Status ok={!!process.env.DISCORD_BOT_TOKEN} label="DISCORD_BOT_TOKEN" />
+            <Status ok={!!process.env.DISCORD_CLIENT_ID} label="DISCORD_CLIENT_ID" />
+            <Status ok={!!process.env.CRON_SECRET} label="CRON_SECRET (매일 7시 자동 공지)" />
+          </ul>
+          <div className="flex flex-wrap gap-2">
+            <form action={registerSlashCommand}>
+              <button className={btn.primary}>/인증 명령 등록</button>
+            </form>
+            <form action={runAnnounceNow}>
+              <button className={btn.secondary}>지금 미션 공지 실행</button>
+            </form>
+          </div>
+          <p className="text-xs text-muted">
+            미션 공지는 매일 오전 7시대에 자동으로 올라가요. 무료 플랜에서는 7시대 중 한 시점에 실행돼서, 급하면 &quot;지금 미션 공지 실행&quot;을 눌러도 돼요.
+          </p>
+        </Card>
+      )}
+
       {all.length > 1 && (
         <Card className="mt-8">
           <h2 className="mb-3 font-black">전체 시즌</h2>
@@ -110,5 +141,14 @@ export default async function EventPage({
         </Card>
       )}
     </>
+  );
+}
+
+function Status({ ok, label }: { ok: boolean; label: string }) {
+  return (
+    <li className="flex items-center gap-2">
+      <Badge tone={ok ? "good" : "bad"}>{ok ? "설정됨" : "없음"}</Badge>
+      <span className="text-xs">{label}</span>
+    </li>
   );
 }

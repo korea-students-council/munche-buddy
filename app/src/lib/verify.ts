@@ -151,12 +151,3 @@ export async function attachReply(submissionId: string, replyMessageId: string, 
     data: { replyMessageId, ...(attachmentUrls.length > 0 ? { attachmentUrls } : {}) },
   });
 }
-
-/** 인증 안내 메시지가 삭제되면 해당 인증을 자동 반려한다. 반려된 건 수를 반환 */
-export async function rejectDeletedMessage(replyMessageId: string): Promise<number> {
-  const res = await db.submission.updateMany({
-    where: { replyMessageId, status: "ACCEPTED" },
-    data: { status: "REJECTED", rejectReason: "인증 메시지가 삭제됨", reviewedAt: new Date() },
-  });
-  return res.count;
-}

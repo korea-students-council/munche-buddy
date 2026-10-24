@@ -105,3 +105,70 @@ export async function fetchGuildMember(guildId: string, userId: string): Promise
     return undefined;
   }
 }
+
+// ── 디스코드 REST (봇 토큰 / 웹훅) ───────────────────────────
+
+/** 테스트에서 모의 서버로 바꿀 수 있도록 주소를 환경변수로 뺐다 */
+const api = () => process.env.DISCORD_API_BASE ?? "https://discord.com/api/v10";
+
+async function call(path: string, init: RequestInit & { bot?: boolean }) {
+  const { bot, ...rest } = init;
+  const headers = new Headers(rest.headers);
+  if (bot) headers.set("Authorization", `Bot ${process.env.DISCORD_BOT_TOKEN ?? ""}`);
+  const res = await fetch(`${api()}${path}`, { ...rest, headers, cache: "no-store" });
+  if (!res.ok) throw new Error(`디스코드 API 오류 ${res.status} ${path.split("?")[0]}`);
+  return res;
+}
+
+const json = { "Content-Type": "application/json" };
+
+export type DiscordEmbed = {
+  title?: string;
+  description?: string;
+  color?: number;
+  footer?: { text: string };
+  image?: { url: string };
+};
+export type DiscordMessage = { id: string; attachments?: { url: string }[] };
+
+/** 채널에 메시지를 보낸다 (미션 공지) */
+export async function sendChannelMessage(channelId: string, payload: { content?: string; embeds?: DiscordEmbed[] }) {
+  await call(`/channels/${channelId}/messages`, { method: "POST", headers: json, body: JSON.stringify(payload), bot: true });
+}
+
+/** 슬래시 명령에 대한 처음 응답(비공개)을 고친다 */
+export async function editOriginalResponse(appId: string, token: string, payload: { content?: string }) {
+  await call(`/webhooks/${appId}/${token}/messages/@original`, { method: "PATCH", headers: json, body: JSON.stringify(payload) });
+}
+
+export async function deleteOriginalResponse(appId: string, token: string) {
+  await call(`/webhooks/${appId}/${token}/messages/@original`, { method: "DELETE" });
+}
+
+/** 공개 후속 메시지. 파일이 있으면 함께 올려 채널에 사진을 보관한다 */
+export async function sendFollowup(
+  appId: string,
+  token: string,
+  payload: { content?: string; embeds?: DiscordEmbed[] },
+  file?: { name: string; data: ArrayBuffer; type: string },
+): Promise<DiscordMessage> {
+  if (!file) {
+    const res = await call(`/webhooks/${appId}/${token}?wait=true`, { method: "POST", headers: json, body: JSON.stringify(payload) });
+    return (await res.json()) as DiscordMessage;
+  }
+  const form = new FormData();
+  form.set("payload_json", JSON.stringify({ ...payload, attachments: [{ id: 0, filename: file.name }] }));
+  form.set("files[0]", new Blob([file.data], { type: file.type }), file.name);
+  const res = await call(`/webhooks/${appId}/${token}?wait=true`, { method: "POST", body: form });
+  return (await res.json()) as DiscordMessage;
+}
+
+/** 서버에 슬래시 명령을 등록한다 (같은 이름이면 덮어쓴다) */
+export async function registerGuildCommands(appId: string, guildId: string, commands: unknown[]) {
+  await call(`/applications/${appId}/guilds/${guildId}/commands`, {
+    method: "PUT",
+    headers: json,
+    body: JSON.stringify(commands),
+    bot: true,
+  });
+}

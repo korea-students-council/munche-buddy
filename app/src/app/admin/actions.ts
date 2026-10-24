@@ -5,7 +5,9 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { drawRaffle } from "@/lib/raffle";
-import { fetchGuildMember } from "@/lib/discord";
+import { announceDueMissions } from "@/lib/announce";
+import { fetchGuildMember, registerGuildCommands } from "@/lib/discord";
+import { VERIFY_COMMAND } from "@/lib/interactions";
 import { safeNext } from "@/lib/env";
 import { TEAM_MAX, TEAM_MIN } from "@/lib/rules";
 import { getCurrentUser } from "@/lib/session";
@@ -537,4 +539,30 @@ export async function unfinalizeEvent(fd: FormData) {
   await assertAdmin();
   await db.event.update({ where: { id: str(fd, "eventId") }, data: { finalizedAt: null } });
   back("/admin/ranking", "ok", "확정을 취소했어요. 다시 인증이 반영돼요.");
+}
+
+// ── 디스코드 연동 ────────────────────────────────────────────
+
+/** 서버에 /인증 명령을 등록한다 (봇 토큰 + 서버 ID 필요) */
+export async function registerSlashCommand() {
+  await assertAdmin();
+  const event = await db.event.findFirst({ where: { isActive: true } });
+  const guildId = event?.guildId ?? process.env.DISCORD_GUILD_ID;
+  const appId = process.env.DISCORD_CLIENT_ID;
+  if (!guildId) back("/admin/event", "error", "서버(길드) ID를 먼저 입력하고 저장해 주세요.");
+  if (!appId || !process.env.DISCORD_BOT_TOKEN) back("/admin/event", "error", "DISCORD_CLIENT_ID / DISCORD_BOT_TOKEN 환경변수가 필요해요.");
+  try {
+    await registerGuildCommands(appId, guildId, [VERIFY_COMMAND]);
+  } catch (e) {
+    back("/admin/event", "error", `명령을 등록하지 못했어요. 봇이 서버에 초대되어 있는지(applications.commands 포함) 확인해 주세요. (${(e as Error).message})`);
+  }
+  back("/admin/event", "ok", "/인증 명령을 서버에 등록했어요. 디스코드에서 / 를 눌러 확인해 보세요.");
+}
+
+/** 공지할 시각이 지난 미션을 지금 바로 공지한다 (크론 대신 수동으로) */
+export async function runAnnounceNow() {
+  await assertAdmin();
+  const r = await announceDueMissions();
+  if (r.errors > 0) back("/admin/event", "error", `공지 중 ${r.errors}건이 실패했어요. 공지 채널 ID와 봇 권한을 확인해 주세요.`);
+  back("/admin/event", "ok", r.remote + r.face === 0 ? "지금 공지할 미션이 없어요." : `비대면 ${r.remote}건, 대면 ${r.face}건을 공지했어요.`);
 }
