@@ -119,14 +119,14 @@ export default async function TeamsPage({ searchParams }: { searchParams: Promis
 
               <ul className="mt-3 flex flex-wrap gap-2">
                 {t.members.map((m) => (
-                  <li key={m.id} className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white py-0.5 pl-0.5 pr-2 text-sm font-bold">
+                  <li key={m.id} className="flex items-center gap-1.5 rounded-full bg-well py-1 pl-1 pr-3 text-sm font-bold">
                     <Avatar name={m.user.name} src={m.user.avatar} size={24} />
                     {m.user.name}
                     <details className="relative">
                       <summary className="cursor-pointer list-none text-xs text-muted hover:text-ink" aria-label={`${m.user.name} 다른 팀으로 이동`}>
                         ⇄
                       </summary>
-                      <form action={moveMember} className="absolute left-0 top-6 z-10 flex gap-1 rounded-xl border-2 border-ink bg-white p-2 shadow-lg">
+                      <form action={moveMember} className="absolute left-0 top-6 z-10 flex gap-1 rounded-xl bg-white p-2 shadow-lg ring-1 ring-line">
                         <input type="hidden" name="id" value={m.id} />
                         <select name="toTeamId" defaultValue="" className="field !w-32 !py-1 !text-xs">
                           <option value="" disabled>

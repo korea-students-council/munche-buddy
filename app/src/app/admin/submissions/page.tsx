@@ -104,7 +104,7 @@ export default async function SubmissionsPage({ searchParams }: { searchParams: 
                     return (
                       <a key={u} href={fresh} target="_blank" rel="noreferrer noopener" className="block">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={fresh} alt={`인증 사진 ${i + 1}`} loading="lazy" className="h-32 w-auto max-w-56 rounded-xl border-2 border-ink object-cover" />
+                        <img src={fresh} alt={`인증 사진 ${i + 1}`} loading="lazy" className="h-32 w-auto max-w-56 rounded-xl object-cover" />
                       </a>
                     );
                   })}

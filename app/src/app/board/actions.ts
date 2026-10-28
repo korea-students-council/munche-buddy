@@ -49,10 +49,10 @@ export async function saveTeamBoard(input: SaveBoardInput): Promise<SaveBoardRes
   for (let position = 0; position < CELL_COUNT; position++) {
     const m = byId.get(input.cells[position]!)!;
     if (isFacePosition(position) && m.type !== "FACE") {
-      return { ok: false, error: `★ 칸에는 대면 미션만 놓을 수 있어요. (${m.number}번은 비대면 미션)` };
+      return { ok: false, error: `대면 칸에는 대면 미션만 놓을 수 있어요. (${m.number}번은 비대면 미션)` };
     }
     if (!isFacePosition(position) && m.type !== "REMOTE") {
-      return { ok: false, error: `★ 칸이 아닌 곳에는 비대면 미션만 놓을 수 있어요. (${m.number}번은 대면 미션)` };
+      return { ok: false, error: `대면 칸이 아닌 곳에는 비대면 미션만 놓을 수 있어요. (${m.number}번은 대면 미션)` };
     }
   }
 

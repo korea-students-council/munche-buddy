@@ -1,35 +1,35 @@
 @import "tailwindcss";
 
+/* 브랜드 색은 로고 4의 두 색(하늘 #BDDBEF · 코코아 #301D15)에서 나온다 */
 :root {
   color-scheme: light;
-  --bg: #edf7e4;
-  --ink: #2b2b2b;
+  --bg: #f4f7f9;
+  --ink: #301d15;
   --card: #ffffff;
-  --muted: #5f6368;
-  --line: #cfe3c3;
+  --muted: #7a6a62;
+  --sub: #5b4a42;
+  --line: #e3e8ec;
+  --well: #f4f7f9;
 
-  --mint: #8fd3a5;
-  --mint-soft: #d9f1de;
-  --pink: #f7b2c0;
-  --pink-soft: #fde4ea;
-  --sky: #bfe3f2;
-  --sky-soft: #e3f3fa;
-  --sun: #ffd95a;
-  --sun-soft: #fff3bd;
+  --sky: #bddbef;
+  --sky-soft: #e3eff7;
+  --cocoa-soft: #f3ece7;
+  --mocha: #dcc9bd;
 
-  --good: #1f8a4c;
-  --good-soft: #d9f1de;
-  --bad: #c93a3f;
-  --bad-soft: #fde4e5;
+  /* 예전 이름은 그대로 두고 값만 브랜드 색으로 바꾼다 (어드민이 함께 쓴다) */
+  --mint: var(--sky);
+  --mint-soft: var(--sky-soft);
+  --pink: var(--mocha);
+  --pink-soft: var(--cocoa-soft);
+  --sun: var(--sky);
+  --sun-soft: var(--sky-soft);
 
-  --card-border: var(--ink);
-  --card-shadow: 3px 3px 0 0 var(--ink);
-}
+  --good: #2f6e52;
+  --good-soft: #e2f0e8;
+  --bad: #b4413b;
+  --bad-soft: #f8e5e3;
 
-/* 어드민은 표와 폼이 많아서 외곽선·그림자를 약하게 */
-.admin-theme {
-  --card-border: var(--line);
-  --card-shadow: none;
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @theme inline {
@@ -37,13 +37,17 @@
   --color-ink: var(--ink);
   --color-card: var(--card);
   --color-muted: var(--muted);
+  --color-sub: var(--sub);
   --color-line: var(--line);
+  --color-well: var(--well);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
+  --color-cocoa-soft: var(--cocoa-soft);
+  --color-mocha: var(--mocha);
   --color-mint: var(--mint);
   --color-mint-soft: var(--mint-soft);
   --color-pink: var(--pink);
   --color-pink-soft: var(--pink-soft);
-  --color-sky: var(--sky);
-  --color-sky-soft: var(--sky-soft);
   --color-sun: var(--sun);
   --color-sun-soft: var(--sun-soft);
   --color-good: var(--good);
@@ -51,23 +55,30 @@
   --color-bad: var(--bad);
   --color-bad-soft: var(--bad-soft);
   --font-sans: var(--font-noto), system-ui, sans-serif;
-  --font-display: var(--font-jua), var(--font-noto), system-ui, sans-serif;
+  --font-display: var(--font-noto), system-ui, sans-serif;
 }
 
 body {
   background-color: var(--bg);
-  background-image: radial-gradient(#d3e9c6 1.6px, transparent 1.6px);
-  background-size: 24px 24px;
   color: var(--ink);
   font-family: var(--font-sans);
   word-break: keep-all;
 }
 
+.font-display {
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
 .card {
   background: var(--card);
-  border: 2px solid var(--card-border);
-  border-radius: 1.5rem;
-  box-shadow: var(--card-shadow);
+  border-radius: 1.75rem;
+}
+
+/* 어드민은 표와 폼이 많아서 카드 경계를 보이게 */
+.admin-theme .card {
+  border-radius: 1.25rem;
+  box-shadow: inset 0 0 0 1px var(--line);
 }
 
 .btn {
@@ -75,57 +86,54 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  padding: 0.6rem 1.15rem;
-  font-weight: 800;
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: 1rem;
+  padding: 0.6rem 1.2rem;
+  font-weight: 700;
   font-size: 0.9rem;
   line-height: 1.2;
-  box-shadow: 2px 2px 0 0 var(--ink);
-  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.15s ease;
+  transition: transform 0.3s var(--spring), background-color 0.2s ease, color 0.2s ease;
   cursor: pointer;
 }
-.btn:hover:not(:disabled) { transform: translate(1px, 1px); box-shadow: 1px 1px 0 0 var(--ink); }
-.btn:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--ink); }
-.btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
-.btn-primary { background: var(--sun); color: var(--ink); }
-.btn-primary:hover:not(:disabled) { background: #ffcf2e; }
-.btn-secondary { background: #fff; color: var(--ink); }
-.btn-secondary:hover:not(:disabled) { background: var(--mint-soft); }
-.btn-danger { background: var(--pink); color: var(--ink); }
-.btn-danger:hover:not(:disabled) { background: #f49bad; }
-.btn-small { padding: 0.3rem 0.8rem; font-size: 0.75rem; box-shadow: 1px 1px 0 0 var(--ink); }
+.btn:active:not(:disabled) { transform: scale(0.96); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: var(--ink); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #4a3227; }
+.btn-secondary { background: #fff; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
+.btn-secondary:hover:not(:disabled) { background: var(--sky-soft); box-shadow: inset 0 0 0 1.5px var(--sky); }
+.btn-danger { background: var(--bad-soft); color: var(--bad); }
+.btn-danger:hover:not(:disabled) { background: #f2d3cf; }
+.btn-small { min-height: 2.1rem; padding: 0.35rem 0.85rem; font-size: 0.8rem; border-radius: 0.8rem; }
 
 .field {
   width: 100%;
-  border: 2px solid var(--ink);
+  border: 1.5px solid var(--line);
   border-radius: 0.9rem;
   background: #fff;
-  padding: 0.6rem 0.8rem;
+  padding: 0.65rem 0.85rem;
   font-size: 0.9rem;
   outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.field:focus { box-shadow: 0 0 0 3px var(--sun); }
-.field:disabled, .field[readonly] { background: #f3f4f1; color: var(--muted); }
+.field:focus { border-color: var(--ink); box-shadow: 0 0 0 4px var(--sky-soft); }
+.field:disabled, .field[readonly] { background: var(--well); color: var(--muted); }
 
 :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
 .field:focus-visible { outline: none; }
 
-/* 인증 칸이 채워질 때의 도장 효과 */
-@keyframes stamp {
-  0% { transform: scale(1.6) rotate(-14deg); opacity: 0; }
-  60% { transform: scale(0.92) rotate(3deg); opacity: 1; }
-  100% { transform: scale(1) rotate(0deg); }
-}
-.stamp { animation: stamp 0.4s ease-out both; }
+.nav-scroll { scrollbar-width: none; }
+.nav-scroll::-webkit-scrollbar { display: none; }
 
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+/* 인증 칸의 체크 표시가 톡 하고 찍힌다 */
+@keyframes pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  70% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
 }
-.bob { animation: bob 3.2s ease-in-out infinite; }
+.pop { animation: pop 0.45s var(--spring) both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .stamp, .bob { animation: none; }
-  .btn { transition: none; }
+  .pop { animation: none; }
+  .btn, .field { transition: none; }
 }

@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Avatar, Badge, BingoGrid, Card, EmptyState, Field, PageTitle, btn, inputCls } from "@/components/ui";
+import { Avatar, Badge, Card, EmptyState, Field, PageTitle, btn, inputCls } from "@/components/ui";
+import { BingoBoard } from "@/components/bingo-board";
 import { Flash } from "@/components/flash";
 import { db } from "@/lib/db";
 import { getActiveEvent } from "@/lib/event";
 import { getTeamBoardState } from "@/lib/standings";
-import { allLines, maxLines } from "@/lib/bingo";
+import { maxLines } from "@/lib/bingo";
+import { toBoardCells } from "@/lib/board-view";
 import { BOARD_SIZE, CELL_COUNT, FACE_COUNT } from "@/lib/rules";
 import { formatKst } from "@/lib/time";
 import { addManualSubmission } from "../../actions";
@@ -29,9 +31,6 @@ export default async function TeamDetail({
     orderBy: { postedAt: "desc" },
     include: { mission: true, user: true },
   });
-  const lines = allLines(BOARD_SIZE);
-  const inLine = new Set<number>();
-  evaluation.completedLines.forEach((i) => lines[i].forEach((p) => inLine.add(p)));
   const todo = cells.filter((c) => !c.filledAt);
 
   return (
@@ -49,7 +48,7 @@ export default async function TeamDetail({
 
       <div className="mb-5 flex flex-wrap gap-2">
         {team.members.map((m) => (
-          <span key={m.id} className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white py-0.5 pl-0.5 pr-2 text-sm font-bold">
+          <span key={m.id} className="flex items-center gap-1.5 rounded-full bg-white py-1 pl-1 pr-3 text-sm font-bold">
             <Avatar name={m.user.name} src={m.user.avatar} size={24} />
             {m.user.name}
           </span>
@@ -59,17 +58,11 @@ export default async function TeamDetail({
       {cells.length === 0 ? (
         <EmptyState>이 팀은 아직 빙고판을 제출하지 않았어요.</EmptyState>
       ) : (
-        <BingoGrid
+        <BingoBoard
           n={BOARD_SIZE}
           color={team.color}
-          cells={cells.map((c) => ({
-            position: c.position,
-            number: c.mission.number,
-            title: c.mission.title,
-            filled: c.filledAt !== null,
-            inLine: inLine.has(c.position),
-            face: c.mission.type === "FACE",
-          }))}
+          withCommand={false}
+          cells={toBoardCells(cells, evaluation.completedLines, event, null)}
         />
       )}
 

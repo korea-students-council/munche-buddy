@@ -16,7 +16,8 @@ export function isFacePosition(position: number): boolean {
   return FACE_POSITIONS.includes(position);
 }
 
-export const COLOR_LABEL = { MINT: "민트", PINK: "핑크" } as const;
+/** DB 값(MINT·PINK)은 그대로 두고, 브랜드 색에 맞춘 이름으로 보여 준다 */
+export const COLOR_LABEL = { MINT: "하늘", PINK: "모카" } as const;
 export type TeamColorKey = keyof typeof COLOR_LABEL;
 
 export const TYPE_LABEL = { REMOTE: "비대면", FACE: "대면" } as const;

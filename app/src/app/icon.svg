@@ -1,14 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#edf7e4"/>
-  <g transform="translate(5 8) scale(0.4)">
-    <g transform="rotate(7 88 66)">
-      <path d="M88 96 C64 96 56 78 58 62 C60 44 74 34 88 34 C102 34 116 44 118 62 C120 78 112 96 88 96Z" fill="#f7b2c0" stroke="#2b2b2b" stroke-width="6" stroke-linejoin="round"/>
-      <circle cx="79" cy="62" r="5" fill="#2b2b2b"/><circle cx="97" cy="62" r="5" fill="#2b2b2b"/>
-    </g>
-    <g transform="rotate(-7 44 66)">
-      <path d="M44 96 C20 96 12 78 14 62 C16 44 30 34 44 34 C58 34 72 44 74 62 C76 78 68 96 44 96Z" fill="#8fd3a5" stroke="#2b2b2b" stroke-width="6" stroke-linejoin="round"/>
-      <circle cx="35" cy="62" r="5" fill="#2b2b2b"/><circle cx="53" cy="62" r="5" fill="#2b2b2b"/>
-    </g>
-    <path d="M66 62 L70 71 L79 72.2 L72.5 78.5 L74.2 87.5 L66 83 L57.8 87.5 L59.5 78.5 L53 72.2 L62 71Z" fill="#ffd95a" stroke="#2b2b2b" stroke-width="5" stroke-linejoin="round"/>
+  <rect width="64" height="64" rx="16" fill="#301D15"/>
+  <g transform="translate(9 17.5) scale(0.59)">
+    <circle cx="26" cy="26" r="22" fill="none" stroke="#BDDBEF" stroke-width="4"/>
+    <circle cx="52" cy="26" r="24" fill="#BDDBEF" stroke="#301D15" stroke-width="4"/>
   </g>
 </svg>

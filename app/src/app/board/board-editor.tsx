@@ -15,7 +15,7 @@ type PoolMission = {
   requirePhoto: boolean;
 };
 
-const FILL: Record<TeamColorKey, string> = { MINT: "bg-mint", PINK: "bg-pink" };
+const FILL: Record<TeamColorKey, string> = { MINT: "bg-sky", PINK: "bg-mocha" };
 
 export function BoardEditor({
   n,
@@ -52,11 +52,11 @@ export function BoardEditor({
     if (held) {
       const m = byId.get(held)!;
       if (isFacePosition(pos) && m.type !== "FACE") {
-        setMsg({ tone: "bad", text: `★ 칸에는 대면 미션만 놓을 수 있어요. (${m.number}번은 비대면 미션)` });
+        setMsg({ tone: "bad", text: `대면 칸에는 대면 미션만 놓을 수 있어요. (${m.number}번은 비대면 미션)` });
         return;
       }
       if (!isFacePosition(pos) && m.type !== "REMOTE") {
-        setMsg({ tone: "bad", text: `대면 미션은 ★ 칸에만 놓을 수 있어요. (${m.number}번은 대면 미션)` });
+        setMsg({ tone: "bad", text: `대면 미션은 대면 칸에만 놓을 수 있어요. (${m.number}번은 대면 미션)` });
         return;
       }
       const next = cells.map((c) => (c === held ? null : c)); // 다른 칸에 있던 같은 미션은 이동
@@ -118,7 +118,7 @@ export function BoardEditor({
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,21rem)]">
       <div>
         {/* 팀명 · 색 */}
-        <div className="card mb-5 grid gap-4 p-4 sm:grid-cols-[1fr_auto] sm:items-end">
+        <div className="card mb-5 grid gap-4 p-5 sm:grid-cols-[1fr_auto] sm:items-end">
           <label className="block">
             <span className="mb-1.5 block text-sm font-bold">팀명</span>
             <input
@@ -131,14 +131,14 @@ export function BoardEditor({
           </label>
           <fieldset>
             <legend className="mb-1.5 text-sm font-bold">빙고판 색</legend>
-            <div className="flex gap-2">
+            <div className="flex gap-1 rounded-2xl bg-[#e6ecf0] p-1">
               {(Object.keys(COLOR_LABEL) as TeamColorKey[]).map((c) => (
                 <label
                   key={c}
-                  className={`flex cursor-pointer items-center gap-2 rounded-full border-2 border-ink px-3 py-1.5 text-sm font-bold ${color === c ? "bg-sun-soft shadow-[2px_2px_0_0_var(--ink)]" : "bg-white"}`}
+                  className={`flex h-9 cursor-pointer items-center gap-2 rounded-xl px-3.5 text-sm font-bold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 ${color === c ? "bg-white shadow-[0_2px_6px_rgba(48,29,21,0.08)]" : "text-muted"}`}
                 >
                   <input type="radio" name="color" className="sr-only" checked={color === c} onChange={() => setColor(c)} />
-                  <span className={`size-4 rounded-full border-2 border-ink ${FILL[c]}`} aria-hidden="true" />
+                  <span className={`size-4 rounded-full ${FILL[c]}`} aria-hidden="true" />
                   {COLOR_LABEL[c]}
                 </label>
               ))}
@@ -148,7 +148,7 @@ export function BoardEditor({
 
         {/* 판 */}
         <div
-          className="grid gap-1.5 sm:gap-2.5"
+          className="grid gap-1.5 rounded-[1.6rem] bg-white p-2 sm:gap-2.5 sm:rounded-[2rem] sm:p-3.5"
           style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}
           role="grid"
           aria-label="빙고판 편집"
@@ -163,19 +163,17 @@ export function BoardEditor({
                 type="button"
                 onClick={() => clickCell(pos)}
                 aria-label={m ? `${m.number}번 ${m.title}` : isFace ? "대면 미션 칸 (비어 있음)" : "비대면 미션 칸 (비어 있음)"}
-                className={`relative flex aspect-square flex-col items-center justify-center rounded-xl border-2 border-ink p-0.5 text-center leading-tight transition sm:rounded-2xl sm:p-1.5 ${
-                  m
-                    ? `${FILL[color]} shadow-[2px_2px_0_0_var(--ink)]`
-                    : isFace
-                      ? "border-dashed bg-sun-soft"
-                      : "bg-white"
-                } ${canDrop && !m ? "ring-4 ring-sun" : ""}`}
+                className={`relative flex aspect-square flex-col items-center justify-center rounded-xl p-1 text-center leading-tight transition-[transform,background-color,box-shadow] duration-300 [transition-timing-function:var(--spring)] hover:scale-[1.03] sm:rounded-[1.2rem] sm:p-2 ${
+                  m ? FILL[color] : isFace ? "bg-cocoa-soft" : "bg-well"
+                } ${canDrop && !m ? "shadow-[inset_0_0_0_2px_var(--ink)]" : isFace && !m ? "shadow-[inset_0_0_0_1.5px_rgba(48,29,21,0.28)]" : ""}`}
               >
-                {isFace && <span className="absolute left-0.5 top-0.5 text-[9px] sm:left-1 sm:top-1 sm:text-xs">★</span>}
+                {isFace && (
+                  <span className="absolute left-1 top-1 rounded-full bg-white px-1 text-[8px] font-bold sm:left-1.5 sm:top-1.5 sm:px-1.5 sm:text-[10px]">대면</span>
+                )}
                 {m ? (
                   <>
-                    <span className="font-display text-base leading-none sm:text-xl">{m.number}</span>
-                    <span className="mt-0.5 line-clamp-3 break-words text-[9px] font-bold leading-[1.15] sm:text-[11px]">{m.title}</span>
+                    <span className="text-base font-black leading-none tracking-[-0.02em] sm:text-xl">{m.number}</span>
+                    <span className="mt-0.5 line-clamp-2 break-words text-[9px] font-medium leading-[1.2] sm:text-xs">{m.title}</span>
                   </>
                 ) : (
                   <span className="text-xs font-bold text-muted sm:text-sm">{canDrop ? "여기!" : "+"}</span>
@@ -187,7 +185,7 @@ export function BoardEditor({
 
         <p className="mt-3 min-h-10 text-sm text-muted" aria-live="polite">
           {heldMission
-            ? `${heldMission.number}번 "${heldMission.title}" 을(를) 놓을 ${heldMission.type === "FACE" ? "★ 칸" : "일반 칸"}을 눌러주세요.`
+            ? `${heldMission.number}번 "${heldMission.title}" 을(를) 놓을 ${heldMission.type === "FACE" ? "대면 칸" : "일반 칸"}을 눌러주세요.`
             : "미션을 누른 뒤 놓을 칸을 누르세요. 놓은 칸을 다시 누르면 집어서 옮길 수 있어요."}
         </p>
 
@@ -196,20 +194,20 @@ export function BoardEditor({
             {pending ? "저장 중..." : alreadySubmitted ? "수정 내용 저장" : "빙고판 제출"}
           </button>
           <button type="button" className={btn.secondary} onClick={randomFill} disabled={filledCount === CELL_COUNT}>
-            🎲 남은 칸 무작위로
+            남은 칸 무작위로
           </button>
           <button type="button" className={btn.secondary} onClick={clearAll} disabled={filledCount === 0}>
             모두 비우기
           </button>
           <span className="ml-auto text-sm font-bold">
-            ★ {placedFace}/{FACE_COUNT} · 일반 {placedRemote}/{REMOTE_COUNT}
+            대면 {placedFace}/{FACE_COUNT} · 일반 {placedRemote}/{REMOTE_COUNT}
           </span>
         </div>
         {!nameOk && filledCount === CELL_COUNT && <p className="mt-2 text-xs font-bold text-bad">팀명을 입력해야 제출할 수 있어요.</p>}
         {msg && (
           <p
             role="status"
-            className={`mt-3 rounded-2xl border-2 px-4 py-3 text-sm font-bold ${msg.tone === "good" ? "border-good/60 bg-good-soft text-good" : "border-bad/60 bg-bad-soft text-bad"}`}
+            className={`mt-3 rounded-2xl px-4 py-3 text-sm font-bold ${msg.tone === "good" ? "bg-good-soft text-good" : "bg-bad-soft text-bad"}`}
           >
             {msg.text}
           </p>
@@ -218,8 +216,8 @@ export function BoardEditor({
 
       {/* 미션 풀 */}
       <div>
-        <PoolSection title={`대면 미션 (★ 칸 ${FACE_COUNT}개)`} tone="sun" missions={face} placed={placed} held={held} onPick={pick} />
-        <PoolSection title={`비대면 미션 (일반 칸 ${REMOTE_COUNT}개)`} tone="mint" missions={remote} placed={placed} held={held} onPick={pick} />
+        <PoolSection title={`대면 미션 (대면 칸 ${FACE_COUNT}개)`} tone="face" missions={face} placed={placed} held={held} onPick={pick} />
+        <PoolSection title={`비대면 미션 (일반 칸 ${REMOTE_COUNT}개)`} tone="remote" missions={remote} placed={placed} held={held} onPick={pick} />
       </div>
     </div>
   );
@@ -234,15 +232,15 @@ function PoolSection({
   onPick,
 }: {
   title: string;
-  tone: "sun" | "mint";
+  tone: "face" | "remote";
   missions: PoolMission[];
   placed: Set<string>;
   held: string | null;
   onPick: (id: string) => void;
 }) {
   return (
-    <section className="mb-5">
-      <h2 className={`mb-2 inline-block rounded-full border-2 border-ink px-3 py-0.5 text-sm font-black ${tone === "sun" ? "bg-sun" : "bg-mint"}`}>
+    <section className="card mb-5 p-4">
+      <h2 className={`mb-3 inline-block rounded-full px-3 py-1 text-[13px] font-bold ${tone === "face" ? "bg-cocoa-soft" : "bg-sky-soft"}`}>
         {title} · {missions.length}개
       </h2>
       <ul className="max-h-[22rem] space-y-1.5 overflow-y-auto pr-1">
@@ -255,20 +253,16 @@ function PoolSection({
                 type="button"
                 onClick={() => onPick(m.id)}
                 aria-pressed={isHeld}
-                className={`flex w-full items-start gap-2.5 rounded-2xl border-2 px-3 py-2 text-left text-sm transition ${
-                  isHeld
-                    ? "border-ink bg-sun shadow-[2px_2px_0_0_var(--ink)]"
-                    : used
-                      ? "border-line bg-white/60 text-muted"
-                      : "border-ink bg-white hover:bg-sun-soft"
+                className={`flex w-full items-start gap-2.5 rounded-2xl px-3 py-2.5 text-left text-sm transition-colors ${
+                  isHeld ? "bg-ink text-white" : used ? "bg-transparent text-muted" : "bg-well hover:bg-sky-soft"
                 }`}
               >
-                <span className="font-display text-lg leading-none">{m.number}</span>
+                <span className="text-lg font-black leading-none">{m.number}</span>
                 <span className="min-w-0 flex-1">
                   <span className="font-bold">{m.title}</span>
                   {used && !isHeld && <span className="ml-2 text-xs">배치됨</span>}
                   {!m.requirePhoto && <span className="ml-2 rounded-full bg-sky px-1.5 py-0.5 text-[10px] font-bold text-ink">사진 선택</span>}
-                  {m.description && <span className="mt-0.5 block text-xs text-muted">{m.description}</span>}
+                  {m.description && <span className={`mt-0.5 block text-xs ${isHeld ? "text-white/70" : "text-muted"}`}>{m.description}</span>}
                 </span>
               </button>
             </li>

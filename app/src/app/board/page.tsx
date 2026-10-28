@@ -1,11 +1,13 @@
-import { Avatar, Badge, BingoGrid, Card, EmptyState, Notice, PageTitle, StatCard, btn } from "@/components/ui";
+import { Avatar, EmptyState, Notice, PageTitle, StatCard, btn } from "@/components/ui";
+import { BingoBoard } from "@/components/bingo-board";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { eventPhase, getActiveEvent, getTodayRemoteMission } from "@/lib/event";
 import { requireUser } from "@/lib/session";
 import { getStandings, getTeamBoardState, getTeamOfUser } from "@/lib/standings";
-import { allLines, maxLines } from "@/lib/bingo";
-import { BOARD_SIZE, CELL_COUNT, FACE_COUNT, REMOTE_COUNT, TYPE_LABEL } from "@/lib/rules";
+import { maxLines } from "@/lib/bingo";
+import { toBoardCells } from "@/lib/board-view";
+import { BOARD_SIZE, CELL_COUNT, FACE_COUNT, REMOTE_COUNT } from "@/lib/rules";
 import { formatKst, remaining } from "@/lib/time";
 import { BoardEditor } from "./board-editor";
 
@@ -20,7 +22,7 @@ export default async function BoardPage() {
   if (!teamId) {
     return (
       <EmptyState href="/how-to" cta="이용 방법 보기">
-        <p className="font-display text-xl text-ink">아직 팀에 배정되지 않았어요</p>
+        <p className="text-xl font-black tracking-[-0.03em] text-ink">아직 팀에 배정되지 않았어요</p>
         <p className="mt-1">운영진이 팀을 편성하면 우리 팀 빙고판이 열려요. 편성이 끝났는데도 보이지 않으면 운영진에게 문의해 주세요.</p>
       </EmptyState>
     );
@@ -30,18 +32,14 @@ export default async function BoardPage() {
   const { team } = state;
   const submitted = team.submittedAt !== null;
 
-  const header = (
-    <div className="mb-5 flex flex-wrap items-center gap-2">
-      <Badge tone="sun">{team.number}조</Badge>
-      {team.name && <span className="font-display text-xl">{team.name}</span>}
-      <span className="flex items-center gap-1">
-        {team.members.map((m) => (
-          <span key={m.id} className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-white py-0.5 pl-0.5 pr-2 text-xs font-bold">
-            <Avatar name={m.user.name} src={m.user.avatar} size={20} />
-            {m.user.name}
-          </span>
-        ))}
-      </span>
+  const members = (
+    <div className="mb-5 flex flex-wrap items-center gap-1.5 px-1">
+      {team.members.map((m) => (
+        <span key={m.id} className="inline-flex items-center gap-1.5 rounded-full bg-white py-1 pl-1 pr-3 text-[13px] font-bold">
+          <Avatar name={m.user.name} src={m.user.avatar} size={24} />
+          {m.user.name}
+        </span>
+      ))}
     </div>
   );
 
@@ -61,9 +59,10 @@ export default async function BoardPage() {
       <>
         <PageTitle
           title="우리 팀 빙고판 만들기"
-          desc={`${formatKst(event.startAt)}에 시작하면 판이 잠겨요 (${remaining(event.startAt, now)} 남음). 팀원 누구나 함께 수정할 수 있고, 마지막에 저장한 내용이 적용돼요.`}
+          desc={`${team.number}조 · ${formatKst(event.startAt)}에 판이 잠겨요 (${remaining(event.startAt, now)} 남음)`}
         />
-        {header}
+        {members}
+        <p className="mb-5 px-1 text-sm text-sub">팀원 누구나 함께 수정할 수 있고, 마지막에 저장한 내용이 적용돼요.</p>
         {faceN < FACE_COUNT || remoteN < REMOTE_COUNT ? (
           <Notice tone="bad">
             미션이 아직 부족해요. 대면 {faceN}/{FACE_COUNT}개 이상, 비대면 {remoteN}/{REMOTE_COUNT}개 이상이 필요해요. 운영진이 미션을 더 등록하면 만들 수 있어요.
@@ -89,7 +88,7 @@ export default async function BoardPage() {
   if (!submitted) {
     return (
       <EmptyState href="/ranking" cta="랭킹 보기">
-        <p className="font-display text-xl text-ink">이번 시즌은 참여할 수 없어요</p>
+        <p className="text-xl font-black tracking-[-0.03em] text-ink">이번 시즌은 참여할 수 없어요</p>
         <p className="mt-1">시즌이 시작되기 전에 빙고판을 제출한 팀만 참여할 수 있어요. 궁금한 점은 운영진에게 문의해 주세요.</p>
       </EmptyState>
     );
@@ -98,76 +97,41 @@ export default async function BoardPage() {
   // ── 시작 후: 현황 ──────────────────────────────────────────
   const [standings, today] = await Promise.all([getStandings(event.id), getTodayRemoteMission(event.id, now)]);
   const me = standings.find((s) => s.teamId === team.id);
-  const lines = allLines(BOARD_SIZE);
-  const lineCells = new Set<number>();
-  state.evaluation.completedLines.forEach((i) => lines[i].forEach((p) => lineCells.add(p)));
-  const todayCell = today ? state.cells.find((c) => c.missionId === today.id) : undefined;
+  const { evaluation } = state;
 
   return (
     <>
       <PageTitle
-        title="우리 팀 빙고"
-        desc={event.name}
+        title={team.name || `${team.number}조`}
+        desc={`${team.number}조 · 빙고 ${evaluation.lines}줄 · ${evaluation.filled} / ${CELL_COUNT}칸 · 대면 ${evaluation.faceCount} / ${FACE_COUNT}`}
         action={
           <Link href="/ranking" className={btn.secondary}>
             랭킹 보기
           </Link>
         }
       />
-      {header}
+      {members}
 
-      <div className="mb-5 grid grid-cols-4 gap-1.5 sm:gap-3">
-        <StatCard label="현재 순위" value={me ? `${me.rank}위` : "-"} sub={`${standings.length}팀 중`} bg="bg-sun-soft" />
-        <StatCard label="빙고 줄" value={`${state.evaluation.lines}`} sub={`최대 ${maxLines(BOARD_SIZE)}줄`} bg="bg-mint-soft" />
-        <StatCard label="채운 칸" value={`${state.evaluation.filled}`} sub={`/ ${CELL_COUNT}칸`} bg="bg-pink-soft" />
-        <StatCard label="대면 미션" value={`${state.evaluation.faceCount}`} sub={`/ ${FACE_COUNT}개`} bg="bg-sky-soft" />
+      <div className="mb-6 grid grid-cols-4 gap-2 sm:max-w-xl">
+        <StatCard label="순위" value={me ? `${me.rank}위` : "-"} sub={`${standings.filter((s) => s.submitted).length}팀 중`} bg="bg-white" />
+        <StatCard label="빙고" value={`${evaluation.lines}줄`} sub={`최대 ${maxLines(BOARD_SIZE)}줄`} bg="bg-sky-soft" />
+        <StatCard label="채운 칸" value={`${evaluation.filled}`} sub={`/ ${CELL_COUNT}칸`} bg="bg-white" />
+        <StatCard label="대면" value={`${evaluation.faceCount}`} sub={`/ ${FACE_COUNT}개`} bg="bg-cocoa-soft" />
       </div>
 
-      {phase === "running" && (
-        <Card className="mb-6">
-          <h2 className="text-sm font-black text-muted">오늘의 비대면 미션</h2>
-          {today ? (
-            <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
-              <p className="text-lg font-black">
-                <span className="font-display mr-1 text-2xl">{today.number}</span>
-                {today.title}
-              </p>
-              {todayCell ? (
-                todayCell.filledAt ? (
-                  <Badge tone="good">인증 완료 ✓</Badge>
-                ) : (
-                  <Badge tone="sun">
-                    우리 팀 빙고판에 있어요 · {remaining(today.deadlineAt ?? now, now)} 남음
-                  </Badge>
-                )
-              ) : (
-                <Badge>우리 팀 빙고판에는 없는 미션</Badge>
-              )}
-            </div>
-          ) : (
-            <p className="mt-1 text-sm text-muted">지금 공지된 비대면 미션이 없어요.</p>
-          )}
-          <p className="mt-3 rounded-xl bg-sky-soft px-3 py-2 text-xs font-bold">
-            디스코드 인증 채널에서 <code className="rounded bg-white px-1">/인증 번호:{today?.number ?? "미션번호"}</code> + 사진 첨부
-          </p>
-        </Card>
+      {phase === "running" && today && !state.cells.some((c) => c.missionId === today.id) && (
+        <Notice tone="gray">
+          오늘의 미션 {today.number}번 &ldquo;{today.title}&rdquo;은 우리 팀 빙고판에 없어요. 대면 미션이나 다음 미션을 노려 봐요!
+        </Notice>
       )}
 
-      <BingoGrid
+      <BingoBoard
         n={BOARD_SIZE}
         color={team.color}
-        cells={state.cells.map((c) => ({
-          position: c.position,
-          number: c.mission.number,
-          title: c.mission.title,
-          filled: c.filledAt !== null,
-          inLine: lineCells.has(c.position),
-          face: c.mission.type === "FACE",
-        }))}
+        cells={toBoardCells(state.cells, evaluation.completedLines, event, today?.id ?? null, now)}
+        withCommand={phase === "running"}
       />
-      <p className="mt-4 text-center text-xs text-muted">
-        ★ 칸은 {TYPE_LABEL.FACE} 미션 칸이에요. 운영진 검수로 인증이 반려되면 칸이 다시 비워질 수 있어요.
-      </p>
+      <p className="mt-5 px-1 text-xs text-muted">운영진 검수로 인증이 반려되면 칸이 다시 비워질 수 있어요.</p>
     </>
   );
 }
