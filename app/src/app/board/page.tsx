@@ -65,7 +65,7 @@ export default async function BoardPage() {
         <p className="mb-5 px-1 text-sm text-sub">팀원 누구나 함께 수정할 수 있고, 마지막에 저장한 내용이 적용돼요.</p>
         {faceN < FACE_COUNT || remoteN < REMOTE_COUNT ? (
           <Notice tone="bad">
-            미션이 아직 부족해요. 대면 {faceN}/{FACE_COUNT}개 이상, 비대면 {remoteN}/{REMOTE_COUNT}개 이상이 필요해요. 운영진이 미션을 더 등록하면 만들 수 있어요.
+            미션이 아직 부족해요. 대면 {faceN}/{FACE_COUNT}개, 비대면 {remoteN}/{REMOTE_COUNT}개 이상이 필요해요. 운영진이 미션을 더 등록하면 만들 수 있어요.
           </Notice>
         ) : (
           <>

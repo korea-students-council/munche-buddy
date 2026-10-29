@@ -9,7 +9,7 @@ import { announceDueMissions } from "@/lib/announce";
 import { fetchGuildMember, registerGuildCommands } from "@/lib/discord";
 import { VERIFY_COMMAND } from "@/lib/interactions";
 import { safeNext } from "@/lib/env";
-import { TEAM_MAX, TEAM_MIN } from "@/lib/rules";
+import { FACE_COUNT, TEAM_MAX, TEAM_MIN } from "@/lib/rules";
 import { getCurrentUser } from "@/lib/session";
 import { getStandings } from "@/lib/standings";
 import { fromKstInput, kstDate } from "@/lib/time";
@@ -116,6 +116,14 @@ export async function addMissions(fd: FormData) {
   if (lines.length === 0) back("/admin/missions", "error", "미션을 한 줄에 하나씩 입력해 주세요.");
   if (lines.length > 200) back("/admin/missions", "error", "한 번에 200개까지 추가할 수 있어요.");
 
+  // 대면 미션은 시즌 동안 대면 칸 수만큼만 공개된다
+  if (type === "FACE") {
+    const faceNow = await db.mission.count({ where: { eventId, type: "FACE" } });
+    if (faceNow + lines.length > FACE_COUNT) {
+      back("/admin/missions", "error", `대면 미션은 시즌에 ${FACE_COUNT}개만 둘 수 있어요. (지금 ${faceNow}개)`);
+    }
+  }
+
   const last = await db.mission.aggregate({ where: { eventId }, _max: { number: true } });
   const start = (last._max.number ?? 0) + 1;
   await db.mission.createMany({
@@ -161,6 +169,10 @@ export async function updateMission(fd: FormData) {
 
   const current = await db.mission.findUnique({ where: { id } });
   if (!current) back("/admin/missions", "error", "미션을 찾을 수 없어요.");
+  if (type === "FACE" && current.type !== "FACE") {
+    const faceNow = await db.mission.count({ where: { eventId: current.eventId, type: "FACE" } });
+    if (faceNow >= FACE_COUNT) back("/admin/missions", "error", `대면 미션은 시즌에 ${FACE_COUNT}개만 둘 수 있어요.`);
+  }
   const publishChanged = current.publishAt?.getTime() !== schedule.publishAt?.getTime();
 
   try {

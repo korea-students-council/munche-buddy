@@ -32,7 +32,7 @@ export default async function MissionsAdminPage({
     <>
       <PageTitle
         title="미션 관리"
-        desc={`${event.name} · 대면 ${face.length}개 (${FACE_COUNT}개 이상 필요) · 비대면 ${remote.length}개 (${REMOTE_COUNT}개 이상 필요) · 일정 없는 비대면 ${unscheduled}개`}
+        desc={`${event.name} · 대면 ${face.length}/${FACE_COUNT}개 · 비대면 ${remote.length}개 (${REMOTE_COUNT}개 이상 필요) · 일정 없는 비대면 ${unscheduled}개`}
       />
       <Flash ok={sp.ok} error={sp.error} />
 
@@ -48,7 +48,7 @@ export default async function MissionsAdminPage({
               <Field label="유형">
                 <select name="type" className={inputCls} defaultValue="REMOTE">
                   <option value="REMOTE">비대면 (매일 1개 공지)</option>
-                  <option value="FACE">대면 (시작일 일괄 공지)</option>
+                  <option value="FACE">대면 (시즌에 {FACE_COUNT}개, 시작일 일괄 공지)</option>
                 </select>
               </Field>
               <Field label="인증 사진">
