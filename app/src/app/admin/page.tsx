@@ -1,20 +1,41 @@
 import Link from "next/link";
-import { Badge, Card, EmptyState, PageTitle } from "@/components/ui";
+import { Badge, Card, EmptyState, PageTitle, btn } from "@/components/ui";
+import { ConfirmButton } from "@/components/confirm-button";
+import { Flash } from "@/components/flash";
+import { DEMO_EVENT_NAME } from "@/lib/demo";
+import { deleteDemo, loadDemo } from "./actions";
 import { db } from "@/lib/db";
 import { PHASE_LABEL, eventPhase, getActiveEvent, getTodayRemoteMission } from "@/lib/event";
 import { getStandings } from "@/lib/standings";
 import { FACE_COUNT, REMOTE_COUNT, TEAM_MAX, TEAM_MIN, TYPE_LABEL } from "@/lib/rules";
 import { formatDay, formatKst } from "@/lib/time";
 
-export default async function AdminDashboard() {
+// 데모 시즌 넣기는 쿼리가 많아서 넉넉히 기다린다
+export const maxDuration = 60;
+
+export default async function AdminDashboard({ searchParams }: { searchParams: Promise<{ ok?: string; error?: string }> }) {
+  const sp = await searchParams;
   const event = await getActiveEvent();
   if (!event) {
     return (
-      <EmptyState href="/admin/event?new=1" cta="시즌 만들기">
-        아직 활성화된 시즌이 없어요. 먼저 시즌을 만들어 주세요.
-      </EmptyState>
+      <>
+        <Flash ok={sp.ok} error={sp.error} />
+        <EmptyState href="/admin/event?new=1" cta="시즌 만들기">
+          아직 활성화된 시즌이 없어요. 먼저 시즌을 만들어 주세요.
+        </EmptyState>
+        <Card className="mt-4">
+          <h2 className="font-black">데모 시즌으로 둘러보기</h2>
+          <p className="mt-1 text-sm text-muted">
+            가짜 팀 6개, 미션, 인증 기록이 들어간 시즌을 만들어요. 나는 1조에 들어가요. 디스코드에는 공지되지 않고, 나중에 한 번에 지울 수 있어요.
+          </p>
+          <form action={loadDemo} className="mt-3">
+            <button className={btn.primary}>데모 시즌 넣기</button>
+          </form>
+        </Card>
+      </>
     );
   }
+  const isDemo = event.name === DEMO_EVENT_NAME;
 
   const now = new Date();
   const phase = eventPhase(event, now);
@@ -63,6 +84,24 @@ export default async function AdminDashboard() {
         action={<Badge tone={phase === "running" ? "good" : phase === "upcoming" ? "sun" : "gray"}>{PHASE_LABEL[phase]}</Badge>}
       />
 
+      <Flash ok={sp.ok} error={sp.error} />
+      {isDemo && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-sun-soft px-4 py-3 text-sm">
+          <p>
+            <b>데모 시즌이에요.</b> 실제 시즌을 만들기 전에 지워 주세요.
+          </p>
+          <div className="flex gap-2">
+            <form action={loadDemo}>
+              <button className={btn.secondary}>날짜에 맞춰 다시 넣기</button>
+            </form>
+            <form action={deleteDemo}>
+              <ConfirmButton message="데모 시즌과 데모 사용자를 모두 지울까요?" className={btn.danger}>
+                데모 지우기
+              </ConfirmButton>
+            </form>
+          </div>
+        </div>
+      )}
       {warnings.length > 0 && (
         <div className="mb-4 rounded-2xl border-2 border-bad/60 bg-bad-soft px-4 py-3 text-sm text-bad">
           <p className="font-black">확인이 필요해요</p>

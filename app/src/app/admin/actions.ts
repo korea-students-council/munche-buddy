@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { drawRaffle } from "@/lib/raffle";
+import { DEMO_EVENT_NAME, createDemoSeason, removeDemoData } from "@/lib/demo";
 import { announceDueMissions } from "@/lib/announce";
 import { fetchGuildMember, registerGuildCommands } from "@/lib/discord";
 import { VERIFY_COMMAND } from "@/lib/interactions";
@@ -99,6 +100,31 @@ export async function activateEvent(fd: FormData) {
     db.event.update({ where: { id }, data: { isActive: true } }),
   ]);
   back("/admin/event", "ok", "해당 시즌을 활성화했어요.");
+}
+
+// ── 데모 ─────────────────────────────────────────────────────
+
+/** 화면을 미리 둘러볼 수 있게 데모 시즌을 넣는다. 누른 운영진은 1조에 들어간다 */
+export async function loadDemo() {
+  const user = await assertAdmin();
+  const active = await db.event.findFirst({ where: { isActive: true } });
+  if (active && active.name !== DEMO_EVENT_NAME) {
+    back("/admin", "error", "진행 중인 실제 시즌이 있어서 데모를 넣을 수 없어요.");
+  }
+  await createDemoSeason({
+    members: [user],
+    guildId: process.env.DISCORD_GUILD_ID ?? "demo-guild",
+    // 데모 미션이 실제 디스코드 채널에 공지되거나 인증되지 않도록 채널을 비워 둔다
+    announceChannelId: null,
+    verifyChannelId: "demo-verify-channel",
+  });
+  back("/admin", "ok", "데모 시즌을 넣었어요. 1조에 들어가 있어요.");
+}
+
+export async function deleteDemo() {
+  await assertAdmin();
+  await removeDemoData();
+  back("/admin", "ok", "데모 시즌과 데모 사용자를 지웠어요.");
 }
 
 // ── 미션 ─────────────────────────────────────────────────────
