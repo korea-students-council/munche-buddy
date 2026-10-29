@@ -71,9 +71,9 @@ export default async function TeamBoardPage({ params }: { params: Promise<{ team
 
       <div className="mb-6 grid grid-cols-4 gap-2 sm:max-w-xl">
         <StatCard label="순위" value={rank ? `${rank}위` : "-"} sub={`${standings.filter((s) => s.submitted).length}팀 중`} bg="bg-white" />
-        <StatCard label="빙고" value={`${evaluation.lines}줄`} sub={`최대 ${maxLines(BOARD_SIZE)}줄`} bg="bg-sky-soft" />
+        <StatCard label="빙고" value={`${evaluation.lines}줄`} sub={`최대 ${maxLines(BOARD_SIZE)}줄`} bg="bg-mint-soft" />
         <StatCard label="채운 칸" value={`${evaluation.filled}`} sub={`/ ${CELL_COUNT}칸`} bg="bg-white" />
-        <StatCard label="대면" value={`${evaluation.faceCount}`} sub={`/ ${FACE_COUNT}개`} bg="bg-cocoa-soft" />
+        <StatCard label="대면" value={`${evaluation.faceCount}`} sub={`/ ${FACE_COUNT}개`} bg="bg-pink-soft" />
       </div>
 
       <BingoBoard
@@ -84,7 +84,7 @@ export default async function TeamBoardPage({ params }: { params: Promise<{ team
       />
       {mine && (
         <p className="mt-5 px-1 text-xs text-muted">
-          <Link href="/board" className="font-bold underline decoration-sky decoration-2 underline-offset-4">
+          <Link href="/board" className="font-bold underline decoration-mint decoration-2 underline-offset-4">
             우리 팀 빙고로 가기
           </Link>
         </p>

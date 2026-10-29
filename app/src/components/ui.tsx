@@ -9,12 +9,11 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
   return <section className={`card p-5 sm:p-6 ${className}`}>{children}</section>;
 }
 
-type Tone = "mint" | "pink" | "sky" | "sun" | "good" | "bad" | "gray" | "ink";
+type Tone = "mint" | "pink" | "sun" | "good" | "bad" | "gray" | "ink";
 const TONES: Record<Tone, string> = {
-  mint: "bg-sky-soft text-ink",
-  pink: "bg-cocoa-soft text-ink",
-  sky: "bg-sky-soft text-ink",
-  sun: "bg-sky text-ink",
+  mint: "bg-mint-soft text-mint-deep",
+  pink: "bg-pink-soft text-pink-deep",
+  sun: "bg-sun-soft text-sun-deep",
   good: "bg-good-soft text-good",
   bad: "bg-bad-soft text-bad",
   gray: "bg-well text-sub",
@@ -52,11 +51,11 @@ export function Notice({ tone = "mint", children }: { tone?: Tone; children: Rea
 export function Avatar({ name, src, size = 32 }: { name: string; src?: string | null; size?: number }) {
   if (src) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={src} alt="" width={size} height={size} className="rounded-full bg-sky-soft" style={{ width: size, height: size }} />;
+    return <img src={src} alt="" width={size} height={size} className="rounded-full bg-mint-soft" style={{ width: size, height: size }} />;
   }
   return (
     <span
-      className="inline-flex shrink-0 items-center justify-center rounded-full bg-sky font-black"
+      className="inline-flex shrink-0 items-center justify-center rounded-full bg-pink-soft font-black text-pink-deep"
       style={{ width: size, height: size, fontSize: size * 0.42 }}
     >
       {name.slice(0, 1)}
@@ -108,11 +107,11 @@ export function StatCard({ label, value, sub, bg = "bg-well" }: { label: string;
 }
 
 /** 진행 막대 */
-export function Progress({ value, max, tone = "sky" }: { value: number; max: number; tone?: "sky" | "ink" }) {
+export function Progress({ value, max, tone = "mint" }: { value: number; max: number; tone?: "mint" | "ink" }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
-    <div className="h-3 overflow-hidden rounded-full bg-[#edf2f5]" role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max}>
-      <div className={`h-full rounded-full ${tone === "ink" ? "bg-ink" : "bg-sky"}`} style={{ width: `${pct}%` }} />
+    <div className="h-3 overflow-hidden rounded-full bg-[#eef3f0]" role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max}>
+      <div className={`h-full rounded-full ${tone === "ink" ? "bg-ink" : "bg-[linear-gradient(90deg,var(--mint),var(--mint-mid))]"}`} style={{ width: `${pct}%` }} />
     </div>
   );
 }
@@ -120,7 +119,7 @@ export function Progress({ value, max, tone = "sky" }: { value: number; max: num
 /** 밑줄 강조 링크 (카드 오른쪽 위 "판 보기", "전체 보기" 같은 것) */
 export function MoreLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={href} className="py-1 text-sm font-bold underline decoration-sky decoration-[3px] underline-offset-[5px] hover:decoration-ink">
+    <Link href={href} className="py-1 text-sm font-bold text-green hover:text-mint-deep">
       {children}
     </Link>
   );

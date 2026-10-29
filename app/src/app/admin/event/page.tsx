@@ -92,7 +92,7 @@ export default async function EventPage({
           <p className="text-sm text-muted">
             개발자 포털 → General Information → <b>Interactions Endpoint URL</b>에 아래 주소를 붙여 넣고 저장하면, 디스코드가 /인증 명령을 이 서비스로 보내줘요.
           </p>
-          <code className="block break-all rounded-xl bg-sky-soft px-3 py-2 text-sm font-bold">
+          <code className="block break-all rounded-xl bg-mint-soft px-3 py-2 text-sm font-bold">
             {appUrl()}/api/discord/interactions
           </code>
           <ul className="grid gap-1 text-sm sm:grid-cols-2">

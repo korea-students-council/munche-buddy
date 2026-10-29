@@ -30,7 +30,7 @@ export default async function MissionsPage() {
     if (!state || !state.team.submittedAt) return null;
     const cell = cellOf.get(m.id);
     if (!cell) return <Badge>우리 판에 없음</Badge>;
-    if (cell.filledAt) return <Badge tone="sun">인증 완료 ✓</Badge>;
+    if (cell.filledAt) return <Badge tone="mint">인증 완료 ✓</Badge>;
     const closed = m.type === "FACE" ? now > event!.endAt : !!m.deadlineAt && m.deadlineAt < now;
     return closed ? <Badge tone="bad">놓침</Badge> : <Badge tone="ink">인증 대기</Badge>;
   }
@@ -38,11 +38,11 @@ export default async function MissionsPage() {
   function item(m: Mission, highlight = false) {
     const done = !!cellOf.get(m.id)?.filledAt;
     return (
-      <li key={m.id} className={`flex flex-wrap items-start justify-between gap-3 rounded-[1.5rem] p-4 sm:p-5 ${highlight ? "bg-sky" : "bg-white"}`}>
+      <li key={m.id} className={`flex flex-wrap items-start justify-between gap-3 rounded-[1.5rem] p-4 sm:p-5 ${highlight ? "bg-sun-soft" : "bg-white"}`}>
         <div className="flex min-w-0 gap-3.5">
           <span
             className={`flex size-12 shrink-0 items-center justify-center rounded-[1.1rem] text-xl font-black ${
-              highlight ? "bg-white" : done ? "bg-sky" : m.type === "FACE" ? "bg-cocoa-soft" : "bg-well"
+              highlight ? "bg-sun text-sun-deep" : done ? "bg-mint" : m.type === "FACE" ? "bg-pink-soft text-pink-deep" : "bg-well"
             }`}
           >
             {m.number}
@@ -51,7 +51,7 @@ export default async function MissionsPage() {
             <div className="flex flex-wrap items-center gap-1.5 text-xs">
               {highlight && <span className="rounded-full bg-ink px-2.5 py-0.5 font-bold text-white">오늘</span>}
               {m.type === "REMOTE" && m.publishAt && <span className="font-bold text-sub">{formatKst(m.publishAt, false)}</span>}
-              {!m.requirePhoto && <span className="rounded-full bg-sky-soft px-2 py-0.5 font-bold">사진 선택</span>}
+              {!m.requirePhoto && <span className="rounded-full bg-mint-soft px-2 py-0.5 font-bold">사진 선택</span>}
             </div>
             <h3 className="mt-0.5 text-[17px] font-black tracking-[-0.02em]">{m.title}</h3>
             {m.description && <p className="mt-0.5 text-sm text-sub">{m.description}</p>}

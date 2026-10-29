@@ -1,7 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="16" fill="#301D15"/>
-  <g transform="translate(9 17.5) scale(0.59)">
-    <circle cx="26" cy="26" r="22" fill="none" stroke="#BDDBEF" stroke-width="4"/>
-    <circle cx="52" cy="26" r="24" fill="#BDDBEF" stroke="#301D15" stroke-width="4"/>
+  <rect width="64" height="64" rx="16" fill="#FFF4C9"/>
+  <g transform="translate(-1 5) scale(0.5)">
+    <g transform="rotate(7 88 66)">
+      <path d="M88 96 C64 96 56 78 58 62 C60 44 74 34 88 34 C102 34 116 44 118 62 C120 78 112 96 88 96Z" fill="#F6A6BB"/>
+      <circle cx="80" cy="62" r="5" fill="#1F2A26"/><circle cx="96" cy="62" r="5" fill="#1F2A26"/>
+    </g>
+    <g transform="rotate(-7 44 66)">
+      <path d="M44 96 C20 96 12 78 14 62 C16 44 30 34 44 34 C58 34 72 44 74 62 C76 78 68 96 44 96Z" fill="#7FD6A6"/>
+      <path d="M44 34 C44 28 44 25 44 22" fill="none" stroke="#2F7A55" stroke-width="3" stroke-linecap="round"/>
+      <path d="M44 24 C37 24 30 19 29 12 C37 12 43 16 44 24Z" fill="#4FB37E"/>
+      <path d="M44 24 C51 24 58 19 59 12 C51 12 45 16 44 24Z" fill="#4FB37E"/>
+      <circle cx="36" cy="62" r="5" fill="#1F2A26"/><circle cx="52" cy="62" r="5" fill="#1F2A26"/>
+    </g>
   </g>
 </svg>

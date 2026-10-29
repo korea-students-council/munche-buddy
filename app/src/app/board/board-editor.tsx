@@ -15,7 +15,7 @@ type PoolMission = {
   requirePhoto: boolean;
 };
 
-const FILL: Record<TeamColorKey, string> = { MINT: "bg-sky", PINK: "bg-mocha" };
+const FILL: Record<TeamColorKey, string> = { MINT: "bg-mint", PINK: "bg-pink" };
 
 export function BoardEditor({
   n,
@@ -131,11 +131,11 @@ export function BoardEditor({
           </label>
           <fieldset>
             <legend className="mb-1.5 text-sm font-bold">빙고판 색</legend>
-            <div className="flex gap-1 rounded-2xl bg-[#e6ecf0] p-1">
+            <div className="flex gap-1 rounded-2xl bg-[#e8eeea] p-1">
               {(Object.keys(COLOR_LABEL) as TeamColorKey[]).map((c) => (
                 <label
                   key={c}
-                  className={`flex h-9 cursor-pointer items-center gap-2 rounded-xl px-3.5 text-sm font-bold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 ${color === c ? "bg-white shadow-[0_2px_6px_rgba(48,29,21,0.08)]" : "text-muted"}`}
+                  className={`flex h-9 cursor-pointer items-center gap-2 rounded-xl px-3.5 text-sm font-bold transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 ${color === c ? "bg-white shadow-[0_2px_6px_rgba(31,42,38,0.08)]" : "text-muted"}`}
                 >
                   <input type="radio" name="color" className="sr-only" checked={color === c} onChange={() => setColor(c)} />
                   <span className={`size-4 rounded-full ${FILL[c]}`} aria-hidden="true" />
@@ -164,8 +164,8 @@ export function BoardEditor({
                 onClick={() => clickCell(pos)}
                 aria-label={m ? `${m.number}번 ${m.title}` : isFace ? "대면 미션 칸 (비어 있음)" : "비대면 미션 칸 (비어 있음)"}
                 className={`relative flex aspect-square flex-col items-center justify-center rounded-xl p-1 text-center leading-tight transition-[transform,background-color,box-shadow] duration-300 [transition-timing-function:var(--spring)] hover:scale-[1.03] sm:rounded-[1.2rem] sm:p-2 ${
-                  m ? FILL[color] : isFace ? "bg-cocoa-soft" : "bg-well"
-                } ${canDrop && !m ? "shadow-[inset_0_0_0_2px_var(--ink)]" : isFace && !m ? "shadow-[inset_0_0_0_1.5px_rgba(48,29,21,0.28)]" : ""}`}
+                  m ? FILL[color] : isFace ? "bg-pink-soft" : "bg-well"
+                } ${canDrop && !m ? "shadow-[inset_0_0_0_2px_var(--ink)]" : isFace && !m ? "shadow-[inset_0_0_0_1.5px_rgba(31,42,38,0.28)]" : ""}`}
               >
                 {isFace && (
                   <span className="absolute left-1 top-1 rounded-full bg-white px-1 text-[8px] font-bold sm:left-1.5 sm:top-1.5 sm:px-1.5 sm:text-[10px]">대면</span>
@@ -240,7 +240,7 @@ function PoolSection({
 }) {
   return (
     <section className="card mb-5 p-4">
-      <h2 className={`mb-3 inline-block rounded-full px-3 py-1 text-[13px] font-bold ${tone === "face" ? "bg-cocoa-soft" : "bg-sky-soft"}`}>
+      <h2 className={`mb-3 inline-block rounded-full px-3 py-1 text-[13px] font-bold ${tone === "face" ? "bg-pink-soft" : "bg-mint-soft"}`}>
         {title} · {missions.length}개
       </h2>
       <ul className="max-h-[22rem] space-y-1.5 overflow-y-auto pr-1">
@@ -254,14 +254,14 @@ function PoolSection({
                 onClick={() => onPick(m.id)}
                 aria-pressed={isHeld}
                 className={`flex w-full items-start gap-2.5 rounded-2xl px-3 py-2.5 text-left text-sm transition-colors ${
-                  isHeld ? "bg-ink text-white" : used ? "bg-transparent text-muted" : "bg-well hover:bg-sky-soft"
+                  isHeld ? "bg-ink text-white" : used ? "bg-transparent text-muted" : "bg-well hover:bg-mint-soft"
                 }`}
               >
                 <span className="text-lg font-black leading-none">{m.number}</span>
                 <span className="min-w-0 flex-1">
                   <span className="font-bold">{m.title}</span>
                   {used && !isHeld && <span className="ml-2 text-xs">배치됨</span>}
-                  {!m.requirePhoto && <span className="ml-2 rounded-full bg-sky px-1.5 py-0.5 text-[10px] font-bold text-ink">사진 선택</span>}
+                  {!m.requirePhoto && <span className="ml-2 rounded-full bg-mint px-1.5 py-0.5 text-[10px] font-bold text-ink">사진 선택</span>}
                   {m.description && <span className={`mt-0.5 block text-xs ${isHeld ? "text-white/70" : "text-muted"}`}>{m.description}</span>}
                 </span>
               </button>

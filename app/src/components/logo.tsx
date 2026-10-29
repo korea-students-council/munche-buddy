@@ -5,7 +5,7 @@ import { PairMark } from "./mascot";
 export function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2.5" aria-label="짝꽁빙고 홈">
-      <PairMark size={40} />
+      <PairMark size={44} />
       <span className="text-xl font-black leading-none tracking-[-0.05em]">짝꽁빙고</span>
     </Link>
   );

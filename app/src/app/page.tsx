@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Badge, Card, EmptyState, MoreLink, Notice, Progress, StatCard, btn } from "@/components/ui";
-import { Mascot } from "@/components/mascot";
+import { Pair3D } from "@/components/pair-3d";
 import { Countdown } from "@/components/countdown";
 import { db } from "@/lib/db";
 import { PHASE_LABEL, eventPhase, getActiveEvent, getNextRemoteMission, getTodayRemoteMission } from "@/lib/event";
@@ -182,11 +182,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </div>
 
       <div className="flex flex-wrap items-stretch gap-5">
-        <section className="relative flex min-h-[16.5rem] min-w-0 flex-[999_1_34rem] flex-col justify-between gap-6 overflow-hidden rounded-[2rem] bg-sky p-6 sm:p-8">
-          <div className="absolute right-5 top-5 w-24 sm:right-7 sm:top-7 sm:w-[11rem]">
-            <Mascot fluid />
+        <section className="relative flex min-h-[16.5rem] min-w-0 flex-[999_1_34rem] flex-col justify-between gap-6 overflow-hidden rounded-[2rem] bg-sun-soft p-6 sm:p-8">
+          <div className="absolute right-1 top-3 z-10 w-32 sm:right-2 sm:top-0 sm:w-[14rem]">
+            <Pair3D />
           </div>
-          <div className="relative pr-24 sm:pr-48">{hero}</div>
+          <div className="relative pr-28 sm:pr-52">{hero}</div>
           <div className="relative flex flex-wrap items-center gap-2.5">
             {cta}
             <span className="inline-flex h-[3.25rem] items-center rounded-2xl bg-white/60 px-4 text-sm font-medium">{bubble}</span>
@@ -207,8 +207,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               <Progress value={myTeam.filled} max={CELL_COUNT} />
               <div className="grid grid-cols-3 gap-2">
                 <StatCard label="순위" value={`${myTeam.rank}위`} />
-                <StatCard label="빙고" value={`${myTeam.lines}줄`} bg="bg-sky-soft" />
-                <StatCard label="대면" value={`${myTeam.faceCount} / ${FACE_COUNT}`} bg="bg-cocoa-soft" />
+                <StatCard label="빙고" value={`${myTeam.lines}줄`} bg="bg-mint-soft" />
+                <StatCard label="대면" value={`${myTeam.faceCount} / ${FACE_COUNT}`} bg="bg-pink-soft" />
               </div>
             </>
           ) : myTeam ? (
@@ -248,15 +248,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <Card className="min-w-0 flex-[1_1_26rem]">
             <div className="flex items-baseline justify-between">
               <h2 className="text-[17px] font-bold">이번 주 인증</h2>
-              {streak >= 2 && <span className="rounded-full bg-sky-soft px-2.5 py-1 text-[13px] font-bold">{streak}일 연속 성공</span>}
+              {streak >= 2 && <span className="text-[13px] font-bold text-green">{streak}일 연속 성공</span>}
             </div>
             <ol className="mt-4 grid grid-cols-7 gap-1.5 text-center sm:gap-2">
               {week.map((w) => {
                 const tone = w.done
-                  ? "bg-sky"
+                  ? "bg-mint text-[#10291d]"
                   : w.offset === 0 && w.number
-                    ? "bg-white shadow-[inset_0_0_0_2.5px_var(--ink)]"
-                    : "bg-well text-[#b5aba5]";
+                    ? "bg-sun-soft text-sun-deep shadow-[inset_0_0_0_2.5px_var(--sun-ring)]"
+                    : "bg-well text-[#9aa8a2]";
                 return (
                   <li key={w.day} className="flex flex-col items-center gap-2">
                     <span
@@ -282,7 +282,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <ol className="mt-3 flex flex-col gap-1.5">
               {winners.map((w) => (
                 <li key={w.id} className="flex items-center gap-3 rounded-2xl bg-well px-3 py-2.5">
-                  <Badge tone={w.kind === "RAFFLE" ? "sky" : "ink"}>{w.kind === "FIRST" ? "1등" : w.kind === "SECOND" ? "2등" : "추첨"}</Badge>
+                  <Badge tone={w.kind === "RAFFLE" ? "sun" : "ink"}>{w.kind === "FIRST" ? "1등" : w.kind === "SECOND" ? "2등" : "추첨"}</Badge>
                   <span className="flex-1 truncate font-bold">
                     {w.team.number}조 {w.team.name}
                   </span>
@@ -300,7 +300,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 <li key={t.teamId}>
                   <Link
                     href={`/teams/${t.teamId}`}
-                    className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-colors hover:bg-sky-soft ${t.teamId === myTeamId ? "bg-sky-soft" : "bg-well"}`}
+                    className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-colors hover:bg-mint-soft ${t.teamId === myTeamId ? "bg-mint-soft" : "bg-well"}`}
                   >
                     <span className={`w-5 text-center text-lg font-black ${t.rank <= 2 ? "" : "text-muted"}`}>{t.rank}</span>
                     <span className="flex-1 truncate font-bold">
@@ -324,7 +324,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </div>
         <ul className="mt-4 grid gap-2.5 sm:grid-cols-3">
           {prizes.map((p, i) => (
-            <li key={p.label} className={`rounded-[1.3rem] p-4 ${i === 2 ? "bg-cocoa-soft" : "bg-sky-soft"}`}>
+            <li key={p.label} className={`rounded-[1.3rem] p-4 ${i === 2 ? "bg-pink-soft" : "bg-mint-soft"}`}>
               <p className="text-xs font-bold text-sub">{p.label}</p>
               <p className="mt-1 font-black">{p.text || "상품 준비 중"}</p>
             </li>

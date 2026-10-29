@@ -7,7 +7,7 @@ const STEPS = [
   },
   {
     t: "팀 빙고판 꾸미기",
-    d: "시즌 시작 전에 팀원이 함께 팀명과 빙고판 색(하늘·모카 중 하나)을 정하고, 제시된 미션 중 25개를 골라 칸에 놓아요. 대면 칸 5개에는 대면 미션만, 나머지 20칸에는 비대면 미션만 놓을 수 있어요. 시작하면 판이 잠겨요.",
+    d: "시즌 시작 전에 팀원이 함께 팀명과 빙고판 색(민트·핑크 중 하나)을 정하고, 제시된 미션 중 25개를 골라 칸에 놓아요. 대면 칸 5개에는 대면 미션만, 나머지 20칸에는 비대면 미션만 놓을 수 있어요. 시작하면 판이 잠겨요.",
   },
   {
     t: "비대면 미션은 매일 오전 7시 공지",
@@ -47,7 +47,7 @@ export default function HowToPage() {
     <>
       <PageTitle title="이용 방법" desc="짝꽁빙고는 이렇게 진행돼요" />
 
-      <section className="mb-8 rounded-[2rem] bg-sky p-6 sm:p-8">
+      <section className="mb-8 rounded-[2rem] bg-sun-soft p-6 sm:p-8">
         <span className="inline-flex rounded-full bg-white px-3 py-1 text-[13px] font-bold">인증하는 방법</span>
         <p className="mt-4 rounded-[1.1rem] bg-white px-4 py-3.5 font-mono text-sm font-semibold sm:text-base">
           /인증 <span className="text-muted">번호:</span>12 <span className="text-muted">사진:</span>[사진 첨부]
@@ -58,7 +58,7 @@ export default function HowToPage() {
       <ol className="grid gap-3 sm:grid-cols-2">
         {STEPS.map((s, i) => (
           <li key={s.t} className="card flex gap-4 p-5">
-            <span className={`inline-flex size-10 shrink-0 items-center justify-center rounded-2xl text-lg font-black ${i % 2 === 0 ? "bg-sky-soft" : "bg-cocoa-soft"}`}>{i + 1}</span>
+            <span className={`inline-flex size-10 shrink-0 items-center justify-center rounded-2xl text-lg font-black ${i % 2 === 0 ? "bg-mint-soft" : "bg-pink-soft"}`}>{i + 1}</span>
             <div>
               <h2 className="text-[17px] font-black tracking-[-0.02em]">{s.t}</h2>
               <p className="mt-1 text-sm text-sub">{s.d}</p>

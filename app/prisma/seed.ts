@@ -8,16 +8,69 @@ import { kstDay } from "../src/lib/time";
 
 if (process.env.NODE_ENV === "production") throw new Error("운영 환경에서는 시드를 실행할 수 없어요.");
 
-const FACE_TITLES = [
-  "팀원 전원과 함께 식사하기", "캠퍼스 포토스팟에서 단체 사진", "같이 운동하기 (30분 이상)", "카페에서 팀 회의하기",
-  "서로의 장점 3가지 이야기하기", "함께 봉사활동 참여하기", "팀 단체 티 맞춰 입기", "학교 행사 함께 참여하기",
+// 실제 짝꽁 사업 미션 후보에서 겹치는 것을 합친 목록. [제목, 설명, 사진 필요 여부]
+type Seed = [title: string, description?: string, requirePhoto?: boolean];
+const FACE_MISSIONS: Seed[] = [
+  ["밥 같이 먹기"],
+  ["카페 가서 서로 골라 준 음료로 인증샷", "상대방이 골라 주는 음료와 함께 찍어요"],
+  ["볼링 쳐서 평균 90점 이상", "점수판이 보이게 찍어 주세요"],
+  ["노래방 듀엣곡 95점 이상", "점수 화면이 보이게 찍어 주세요"],
+  ["머리띠·안경 씌워 주고 인생네컷", "서로에게 어울리는 머리띠와 안경을 골라 주세요"],
+  ["유행하는 릴스 찍고 좋아요 10개 받기"],
+  ["함께 공포영화 보고 인증샷"],
+  ["30분 플로깅하기"],
+  ["도서관 같이 가기"],
+  ["빵집 같이 가기"],
+  ["제비뽑기로 고른 메뉴 먹으러 가기", "제비뽑기에서 걸린 사람이 먹고 싶은 메뉴로 가요"],
+  ["눈 오는 날 눈사람 만들기", "귀여운 눈사람과 함께 찍어 주세요"],
+  ["보드게임 카페에서 젠가 17개 이상 빼기"],
+  ["상대가 가장 마음에 들어 하는 인생샷 찍어 주기"],
 ];
-const REMOTE_TITLES = [
-  "아침 7시 전에 일어나기", "물 2L 마시기", "오늘 하늘 사진 찍기", "10분 스트레칭", "계단으로만 이동하기",
-  "친구에게 안부 연락하기", "책 10쪽 읽기", "방 정리하기", "새로운 음식 먹어보기", "산책 30분",
-  "감사한 일 3가지 쓰기", "SNS 1시간 끊기", "오늘 배운 것 공유하기", "손으로 편지 쓰기", "대중교통에서 책 읽기",
-  "건강한 점심 먹기", "스쿼트 30개", "쓰레기 줍기", "칭찬 한 마디 하기", "일기 쓰기",
-  "노래 한 곡 따라 부르기", "플랭크 1분", "하루 만 보 걷기", "일찍 잠들기",
+// 앞의 두 개는 기본 미션이라 시즌 첫날부터 공지된다
+const REMOTE_MISSIONS: Seed[] = [
+  ["카톡 이름 바꾸기", "기본 미션 · 바꾼 화면을 캡처해 주세요"],
+  ["전화 한 통 하기", "기본 미션 · 통화 기록을 캡처해 주세요"],
+  ["온라인 게임 같이하기"],
+  ["애장품 소개하기"],
+  ["하루 일과 공유하며 대화하기"],
+  ["인생곡 공유하기"],
+  ["부담되지 않는 작은 선물 주고받기"],
+  ["서로 옷 코디해 주기"],
+  ["재밌게 본 영화 감상 공유하기"],
+  ["서로의 장점 또는 단점 3가지 이야기하기", "짝선배와 짝후배가 서로에게 말해 줘요"],
+  ["말할 수 있는 선에서 고민 상담하기", "", false],
+  ["만화 추천해 주기"],
+  ["밸런스 게임하기", "주제는 문체 위원장이 알려 드려요"],
+  ["간식 선물하고 후기 공유하기"],
+  ["서로의 취미 이야기하기"],
+  ["이름으로 삼행시 지어 주기"],
+  ["릴스 공유하기"],
+  ["책 추천하고 후기 공유하기"],
+  ["넌센스 퀴즈 맞히기", "", false],
+  ["서로의 MBTI 맞혀 보기"],
+  ["어울리는 노래 추천하고 이유 말하기"],
+  ["삼시세끼 공유하기"],
+  ["인생 버킷리스트 3가지 공유하기"],
+  ["서로 동네 맛집 추천하고 방문 사진 남기기"],
+  ["하루 동안 야자타임", "후임과 선임이 하루 동안 야자타임하며 지내요", false],
+  ["가 봤던 여행지 사진 공유하기"],
+  ["어릴 때 사진 공유하기"],
+  ["졸업 사진 공유하기"],
+  ["학생회장 때 좋았던 점·어려웠던 점 공유하기"],
+  ["고등학교 때 추억 공유하기"],
+  ["어울리는 직업 추천하고 내 꿈 소개하기"],
+  ["가장 행복했던 에피소드 공유하기"],
+  ["올해 가장 열심히 한 일 공유하기"],
+  ["첫사랑 이야기와 이상형 이야기하기"],
+  ["서로에게 진심을 담아 편지 쓰기"],
+  ["내 사진 3장 중 가장 잘 나온 사진 골라 주기"],
+  ["조별 드레스코드 맞춰 하루 지내기", "조마다 드레스코드를 정해 코디하고 다녀요"],
+  ["상대 동네 가 보고 싶은 곳 대신 다녀오기", "다녀온 뒤 후기를 알려 주세요"],
+  ["서로 닮은 동물과 이유 말해 주기"],
+  ["21기가 소개하는 20대의 로망", "22기가 궁금한 20대의 로망을 21기가 소개해요"],
+  ["좋아하는 애니메이션 추천하기"],
+  ["셋이 함께 문체 위원장 MBTI 추리하기"],
+  ["나눈 대화 중 가장 인상 깊었던 이야기 공유하기"],
 ];
 const TEAM_NAMES = ["반짝반짝 짝꽁", "솜사탕 팀", "초록이들", "달콤한 짝꽁", "구름 위의 짝꿍들", "토끼굴 탐험대"];
 const USER_NAMES = ["민준", "서연", "지호", "하은", "도윤", "수아", "예준", "지우", "시우", "서윤", "하준", "채원", "주원", "다은"];
@@ -46,7 +99,8 @@ async function main() {
   const dayOffset = (n: number) => kstDay(new Date(now.getTime() + n * DAY));
   const startDay = dayOffset(-3);
   const startAt = kst(startDay, "00:00");
-  const endAt = new Date(kst(dayOffset(17), "23:59").getTime() + 59_999);
+  // 비대면 미션이 하루 1개씩 모두 공지될 때까지가 시즌이다
+  const endAt = new Date(kst(dayOffset(REMOTE_MISSIONS.length - 4), "23:59").getTime() + 59_999);
 
   const event = await db.event.create({
     data: {
@@ -64,13 +118,14 @@ async function main() {
     },
   });
 
-  // 대면 미션 1~8번 (7번은 사진 선택), 비대면 미션 9번~: 하루 1개
+  // 대면 미션 1번~, 비대면 미션은 그 다음 번호부터 하루 1개.
+  // 비대면 미션이 빙고판 칸(20칸)보다 훨씬 많아서, 공지됐지만 우리 판에는 없는 미션이 생긴다
   const face: Mission[] = [];
-  for (const [i, title] of FACE_TITLES.entries()) {
-    face.push(await db.mission.create({ data: { eventId: event.id, number: i + 1, type: "FACE", title, requirePhoto: i !== 6 } }));
+  for (const [i, [title, description = "", requirePhoto = true]] of FACE_MISSIONS.entries()) {
+    face.push(await db.mission.create({ data: { eventId: event.id, number: i + 1, type: "FACE", title, description, requirePhoto } }));
   }
   const remote: Mission[] = [];
-  for (const [i, title] of REMOTE_TITLES.entries()) {
+  for (const [i, [title, description = "", requirePhoto = true]] of REMOTE_MISSIONS.entries()) {
     const day = dayOffset(i - 3);
     const isToday = day === todayKst;
     // 오늘 미션은 지금 열려 있도록 (데모를 언제 돌려도 인증해 볼 수 있게)
@@ -80,11 +135,11 @@ async function main() {
       await db.mission.create({
         data: {
           eventId: event.id,
-          number: FACE_TITLES.length + i + 1,
+          number: FACE_MISSIONS.length + i + 1,
           type: "REMOTE",
           title,
-          description: i % 4 === 0 ? "시계나 시간이 보이게 찍어주세요" : "",
-          requirePhoto: i !== 4,
+          description,
+          requirePhoto,
           day,
           publishAt,
           deadlineAt,

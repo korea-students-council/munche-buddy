@@ -20,8 +20,8 @@ export type BoardCell = {
 
 /** 팀이 고른 판 색: [빙고 줄 칸, 인증한 칸] */
 export const TEAM_FILL: Record<TeamColorKey, [string, string]> = {
-  MINT: ["bg-sky", "bg-sky-soft"],
-  PINK: ["bg-mocha", "bg-cocoa-soft"],
+  MINT: ["bg-mint", "bg-mint-soft"],
+  PINK: ["bg-pink", "bg-pink-mid"],
 };
 
 export function commandFor(c: Pick<BoardCell, "number" | "requirePhoto">) {
@@ -66,7 +66,7 @@ export function BingoBoard({
   return (
     <div className="flex flex-wrap items-start gap-6">
       <section aria-label="빙고판" className="min-w-0 flex-[999_1_34rem]">
-        <div role="group" aria-label="보기 방식" className="mb-3 ml-auto grid w-56 grid-cols-2 rounded-2xl bg-[#e6ecf0] p-1">
+        <div role="group" aria-label="보기 방식" className="mb-3 ml-auto grid w-56 grid-cols-2 rounded-2xl bg-[#e8eeea] p-1">
           {[
             [false, "전체 보기"],
             [true, "남은 칸만"],
@@ -76,7 +76,7 @@ export function BingoBoard({
               type="button"
               aria-pressed={onlyLeft === v}
               onClick={() => setOnlyLeft(v as boolean)}
-              className={`h-9 rounded-xl text-[13px] font-bold transition-colors ${onlyLeft === v ? "bg-white shadow-[0_2px_6px_rgba(48,29,21,0.08)]" : "text-muted"}`}
+              className={`h-9 rounded-xl text-[13px] font-bold transition-colors ${onlyLeft === v ? "bg-white shadow-[0_2px_6px_rgba(31,42,38,0.08)]" : "text-muted"}`}
             >
               {label}
             </button>
@@ -91,14 +91,12 @@ export function BingoBoard({
         >
           {cells.map((c) => {
             const isSel = c.position === sel;
-            const bg = c.inLine ? line : c.filled ? soft : c.face ? "bg-white" : "bg-well";
+            const bg = c.inLine ? line : c.filled ? soft : c.face ? "bg-pink-soft text-[#5c1e33]" : "bg-well";
             const ring = isSel
               ? "shadow-[0_0_0_2px_#fff,0_0_0_4px_var(--ink)]"
               : c.today && !c.filled
-                ? "shadow-[inset_0_0_0_2px_var(--ink)]"
-                : c.face && !c.filled
-                  ? "shadow-[inset_0_0_0_1.5px_rgba(48,29,21,0.28)]"
-                  : "";
+                ? "shadow-[inset_0_0_0_2.5px_var(--sun-ring)]"
+                : "";
             return (
               <button
                 key={c.position}
@@ -116,9 +114,9 @@ export function BingoBoard({
                       ✓
                     </span>
                   ) : c.today ? (
-                    <span className="hidden rounded-full bg-ink px-2 py-0.5 text-[11px] font-bold text-white sm:inline">오늘</span>
+                    <span className="hidden rounded-full bg-sun px-2 py-0.5 text-[11px] font-bold text-sun-deep sm:inline">오늘</span>
                   ) : c.face ? (
-                    <span className="hidden rounded-full bg-cocoa-soft px-2 py-0.5 text-[11px] font-bold sm:inline">대면</span>
+                    <span className="hidden rounded-full bg-white/70 px-2 py-0.5 text-[11px] font-bold text-pink-deep sm:inline">대면</span>
                   ) : null}
                 </span>
                 <span className="line-clamp-2 break-words text-[9.5px] font-medium leading-[1.25] sm:text-[13px] sm:leading-[1.3]">{c.title}</span>
@@ -130,21 +128,21 @@ export function BingoBoard({
         <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 px-1 text-xs text-sub sm:text-[13px]">
           <li className="inline-flex items-center gap-1.5"><span className={`size-3.5 rounded-[5px] ${line}`} />빙고 줄</li>
           <li className="inline-flex items-center gap-1.5"><span className={`size-3.5 rounded-[5px] ${soft}`} />인증 완료</li>
-          <li className="inline-flex items-center gap-1.5"><span className="size-3.5 rounded-[5px] bg-white shadow-[inset_0_0_0_1.5px_rgba(48,29,21,0.28)]" />대면 칸</li>
-          <li className="inline-flex items-center gap-1.5"><span className="size-3.5 rounded-[5px] shadow-[inset_0_0_0_2px_var(--ink)]" />오늘 미션</li>
+          <li className="inline-flex items-center gap-1.5"><span className="size-3.5 rounded-[5px] bg-pink-soft" />대면 칸</li>
+          <li className="inline-flex items-center gap-1.5"><span className="size-3.5 rounded-[5px] shadow-[inset_0_0_0_2.5px_var(--sun-ring)]" />오늘 미션</li>
         </ul>
       </section>
 
       {current && (
-        <aside aria-live="polite" className="card min-w-0 flex-[1_1_19rem] p-6 shadow-[0_12px_32px_-18px_rgba(48,29,21,0.25)] lg:sticky lg:top-36 lg:mt-12">
+        <aside aria-live="polite" className="card min-w-0 flex-[1_1_19rem] p-6 shadow-[0_12px_32px_-18px_rgba(31,42,38,0.25)] lg:sticky lg:top-36 lg:mt-12">
           <div className="flex flex-wrap gap-2 text-[13px] font-bold">
-            <span className={`rounded-full px-3 py-1 ${current.face ? "bg-cocoa-soft" : "bg-well"}`}>{current.face ? "대면 미션" : "비대면 미션"}</span>
-            <span className={`rounded-full px-3 py-1 ${current.filled ? "bg-sky" : "bg-ink text-white"}`}>{current.filled ? "인증 완료" : "아직 인증 전"}</span>
-            {!current.requirePhoto && <span className="rounded-full bg-sky-soft px-3 py-1">사진 선택</span>}
+            <span className={`rounded-full px-3 py-1 ${current.face ? "bg-pink-soft text-pink-deep" : "bg-[#eef3f0] text-[#3e4d46]"}`}>{current.face ? "대면 미션" : "비대면 미션"}</span>
+            <span className={`rounded-full px-3 py-1 ${current.filled ? "bg-mint-soft text-mint-deep" : "bg-sun-soft text-sun-deep"}`}>{current.filled ? "인증 완료" : "아직 인증 전"}</span>
+            {!current.requirePhoto && <span className="rounded-full bg-well px-3 py-1 text-sub">사진 선택</span>}
           </div>
           <div className="mt-4 flex items-center gap-3.5">
             <span
-              className={`inline-flex size-[3.75rem] shrink-0 items-center justify-center rounded-[1.4rem] text-[1.6rem] font-black ${current.filled ? "bg-sky" : current.face ? "bg-cocoa-soft" : "bg-ink text-white"}`}
+              className={`inline-flex size-[3.75rem] shrink-0 items-center justify-center rounded-[1.4rem] text-[1.6rem] font-black ${current.filled ? "bg-mint text-[#10291d]" : current.face ? "bg-pink text-[#4a1427]" : "bg-sun text-[#3d3000]"}`}
             >
               {current.number}
             </span>
@@ -158,7 +156,7 @@ export function BingoBoard({
               <button
                 type="button"
                 onClick={copy}
-                className={`btn mt-3 h-[3.4rem] w-full rounded-[1.1rem] text-[15px] ${copied ? "bg-sky text-ink" : "btn-primary"}`}
+                className={`btn mt-3 h-[3.4rem] w-full rounded-[1.1rem] text-[15px] ${copied ? "bg-mint-soft text-mint-deep" : "bg-green text-white hover:bg-mint-deep"}`}
               >
                 {copied ? "복사했어요! 디스코드에 붙여 넣으세요" : "명령어 복사하기"}
               </button>

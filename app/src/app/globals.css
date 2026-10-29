@@ -1,31 +1,32 @@
 @import "tailwindcss";
 
-/* 브랜드 색은 로고 4의 두 색(하늘 #BDDBEF · 코코아 #301D15)에서 나온다 */
+/* B안 파스텔: 로고의 민트·핑크 두 친구와 오늘의 미션 노랑 */
 :root {
   color-scheme: light;
-  --bg: #f4f7f9;
-  --ink: #301d15;
+  --bg: #f4f7f5;
+  --ink: #1f2a26;
   --card: #ffffff;
-  --muted: #7a6a62;
-  --sub: #5b4a42;
-  --line: #e3e8ec;
-  --well: #f4f7f9;
+  --muted: #6a7a73;
+  --sub: #4f5e57;
+  --line: #e3eae6;
+  --well: #f4f7f5;
 
-  --sky: #bddbef;
-  --sky-soft: #e3eff7;
-  --cocoa-soft: #f3ece7;
-  --mocha: #dcc9bd;
+  --mint: #7fd6a6;
+  --mint-mid: #a8e6c3;
+  --mint-soft: #ddf4e7;
+  --mint-deep: #145c3d;
+  --green: #187a51;
+  --pink: #f6a6bb;
+  --pink-mid: #fbd0dc;
+  --pink-soft: #fde7ee;
+  --pink-deep: #8e3651;
+  --sun: #ffe58a;
+  --sun-soft: #fff4c9;
+  --sun-ring: #f2c230;
+  --sun-deep: #6b5300;
 
-  /* 예전 이름은 그대로 두고 값만 브랜드 색으로 바꾼다 (어드민이 함께 쓴다) */
-  --mint: var(--sky);
-  --mint-soft: var(--sky-soft);
-  --pink: var(--mocha);
-  --pink-soft: var(--cocoa-soft);
-  --sun: var(--sky);
-  --sun-soft: var(--sky-soft);
-
-  --good: #2f6e52;
-  --good-soft: #e2f0e8;
+  --good: #187a51;
+  --good-soft: #e3f6eb;
   --bad: #b4413b;
   --bad-soft: #f8e5e3;
 
@@ -40,16 +41,19 @@
   --color-sub: var(--sub);
   --color-line: var(--line);
   --color-well: var(--well);
-  --color-sky: var(--sky);
-  --color-sky-soft: var(--sky-soft);
-  --color-cocoa-soft: var(--cocoa-soft);
-  --color-mocha: var(--mocha);
   --color-mint: var(--mint);
+  --color-mint-mid: var(--mint-mid);
   --color-mint-soft: var(--mint-soft);
+  --color-mint-deep: var(--mint-deep);
+  --color-green: var(--green);
   --color-pink: var(--pink);
+  --color-pink-mid: var(--pink-mid);
   --color-pink-soft: var(--pink-soft);
+  --color-pink-deep: var(--pink-deep);
   --color-sun: var(--sun);
   --color-sun-soft: var(--sun-soft);
+  --color-sun-ring: var(--sun-ring);
+  --color-sun-deep: var(--sun-deep);
   --color-good: var(--good);
   --color-good-soft: var(--good-soft);
   --color-bad: var(--bad);
@@ -99,9 +103,9 @@ body {
 .btn:active:not(:disabled) { transform: scale(0.96); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-primary { background: var(--ink); color: #fff; }
-.btn-primary:hover:not(:disabled) { background: #4a3227; }
+.btn-primary:hover:not(:disabled) { background: #34433d; }
 .btn-secondary { background: #fff; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
-.btn-secondary:hover:not(:disabled) { background: var(--sky-soft); box-shadow: inset 0 0 0 1.5px var(--sky); }
+.btn-secondary:hover:not(:disabled) { background: var(--mint-soft); box-shadow: inset 0 0 0 1.5px var(--mint); }
 .btn-danger { background: var(--bad-soft); color: var(--bad); }
 .btn-danger:hover:not(:disabled) { background: #f2d3cf; }
 .btn-small { min-height: 2.1rem; padding: 0.35rem 0.85rem; font-size: 0.8rem; border-radius: 0.8rem; }
@@ -116,7 +120,7 @@ body {
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.field:focus { border-color: var(--ink); box-shadow: 0 0 0 4px var(--sky-soft); }
+.field:focus { border-color: var(--ink); box-shadow: 0 0 0 4px var(--mint-soft); }
 .field:disabled, .field[readonly] { background: var(--well); color: var(--muted); }
 
 :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; border-radius: 6px; }

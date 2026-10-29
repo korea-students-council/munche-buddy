@@ -124,7 +124,7 @@ function MissionForm({ m, holders }: { m: Mission; holders: number }) {
         <input type="hidden" name="id" value={m.id} />
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone={face ? "sun" : "mint"}>{face ? "대면" : "비대면"}</Badge>
-          {!face && (m.day ? <Badge tone="sky">{m.day}</Badge> : <Badge>일정 없음</Badge>)}
+          {!face && (m.day ? <Badge tone="sun">{m.day}</Badge> : <Badge>일정 없음</Badge>)}
           {m.announcedAt && <Badge tone="good">공지됨</Badge>}
           {!m.requirePhoto && <Badge tone="pink">사진 선택</Badge>}
           <Badge>{holders}팀 보유</Badge>

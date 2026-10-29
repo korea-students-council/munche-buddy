@@ -114,9 +114,9 @@ export default async function BoardPage() {
 
       <div className="mb-6 grid grid-cols-4 gap-2 sm:max-w-xl">
         <StatCard label="순위" value={me ? `${me.rank}위` : "-"} sub={`${standings.filter((s) => s.submitted).length}팀 중`} bg="bg-white" />
-        <StatCard label="빙고" value={`${evaluation.lines}줄`} sub={`최대 ${maxLines(BOARD_SIZE)}줄`} bg="bg-sky-soft" />
+        <StatCard label="빙고" value={`${evaluation.lines}줄`} sub={`최대 ${maxLines(BOARD_SIZE)}줄`} bg="bg-mint-soft" />
         <StatCard label="채운 칸" value={`${evaluation.filled}`} sub={`/ ${CELL_COUNT}칸`} bg="bg-white" />
-        <StatCard label="대면" value={`${evaluation.faceCount}`} sub={`/ ${FACE_COUNT}개`} bg="bg-cocoa-soft" />
+        <StatCard label="대면" value={`${evaluation.faceCount}`} sub={`/ ${FACE_COUNT}개`} bg="bg-pink-soft" />
       </div>
 
       {phase === "running" && today && !state.cells.some((c) => c.missionId === today.id) && (
