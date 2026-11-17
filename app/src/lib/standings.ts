@@ -1,4 +1,5 @@
 import { db } from "./db";
+import { refreshAttachmentUrls } from "./discord";
 import { BOARD_SIZE } from "./rules";
 import { evaluateBoard, rankTeams, type BoardEvaluation, type CellFill } from "./bingo";
 import type { TeamColor } from "@prisma/client";
@@ -82,6 +83,19 @@ export async function getTeamBoardState(eventId: string, teamId: string) {
     filledAt: fills.get(`${teamId}:${c.missionId}`) ?? null,
   }));
   return { team, cells, evaluation: evaluateBoard(BOARD_SIZE, cells) };
+}
+
+/** 칸을 채운 인증 사진 (미션 id → 새로 받은 사진 주소). 가장 먼저 인정된 인증의 첫 사진을 쓴다 */
+export async function getCellPhotos(eventId: string, teamId: string) {
+  const subs = await db.submission.findMany({
+    where: { eventId, teamId, status: "ACCEPTED", NOT: { attachmentUrls: { isEmpty: true } } },
+    orderBy: { postedAt: "asc" },
+    select: { missionId: true, attachmentUrls: true },
+  });
+  const first = new Map<string, string>();
+  subs.forEach((s) => !first.has(s.missionId) && first.set(s.missionId, s.attachmentUrls[0]));
+  const fresh = await refreshAttachmentUrls([...first.values()]);
+  return new Map([...first].map(([m, u]) => [m, fresh.get(u) ?? u]));
 }
 
 /** 로그인한 사용자가 속한 팀 (이 시즌) */

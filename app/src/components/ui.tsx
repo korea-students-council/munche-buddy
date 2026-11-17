@@ -4,28 +4,11 @@ import { Mascot } from "./mascot";
 
 export { btn, inputCls } from "./styles";
 import { btn } from "./styles";
+import { TONES, type Tone } from "./chips";
+export { Avatar, Badge } from "./chips";
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <section className={`card p-5 sm:p-6 ${className}`}>{children}</section>;
-}
-
-type Tone = "mint" | "pink" | "sun" | "good" | "bad" | "gray" | "ink";
-const TONES: Record<Tone, string> = {
-  mint: "bg-mint-soft text-mint-deep",
-  pink: "bg-pink-soft text-pink-deep",
-  sun: "bg-sun-soft text-sun-deep",
-  good: "bg-good-soft text-good",
-  bad: "bg-bad-soft text-bad",
-  gray: "bg-well text-sub",
-  ink: "bg-ink text-white",
-};
-
-export function Badge({ children, tone = "gray" }: { children: ReactNode; tone?: Tone }) {
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold ${TONES[tone]}`}>
-      {children}
-    </span>
-  );
 }
 
 export function PageTitle({ title, desc, action }: { title: string; desc?: string; action?: ReactNode }) {
@@ -45,21 +28,6 @@ export function Notice({ tone = "mint", children }: { tone?: Tone; children: Rea
     <div role="status" className={`mb-4 rounded-2xl px-4 py-3 text-sm font-bold ${TONES[tone]}`}>
       {children}
     </div>
-  );
-}
-
-export function Avatar({ name, src, size = 32 }: { name: string; src?: string | null; size?: number }) {
-  if (src) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={src} alt="" width={size} height={size} className="rounded-full bg-mint-soft" style={{ width: size, height: size }} />;
-  }
-  return (
-    <span
-      className="inline-flex shrink-0 items-center justify-center rounded-full bg-pink-soft font-black text-pink-deep"
-      style={{ width: size, height: size, fontSize: size * 0.42 }}
-    >
-      {name.slice(0, 1)}
-    </span>
   );
 }
 

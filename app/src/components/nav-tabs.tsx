@@ -15,6 +15,7 @@ export function NavTabs({ items }: { items: { href: string; label: string }[] })
             <li key={i.href}>
               <Link
                 href={i.href}
+                data-tour={`nav${i.href.replace(/\//g, "-")}`}
                 aria-current={active ? "page" : undefined}
                 className={`flex h-10 items-center whitespace-nowrap rounded-[0.85rem] px-4 text-sm font-bold transition-colors ${active ? "bg-mint-soft text-mint-deep" : "text-muted hover:bg-well hover:text-ink"}`}
               >

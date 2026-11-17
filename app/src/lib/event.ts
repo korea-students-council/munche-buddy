@@ -9,6 +9,12 @@ export function eventPhase(e: Pick<Event, "startAt" | "endAt">, now = new Date()
   return "running";
 }
 
+/** 박진감을 위해 최종 마감 7일 전부터 결과 확정 전까지 순위를 숨긴다 (운영진은 볼 수 있다) */
+export const RANK_HIDE_DAYS = 7;
+export function rankingHidden(e: Pick<Event, "endAt" | "finalizedAt">, now = new Date()) {
+  return !e.finalizedAt && now.getTime() >= e.endAt.getTime() - RANK_HIDE_DAYS * 864e5;
+}
+
 export const PHASE_LABEL: Record<Phase, string> = {
   upcoming: "시작 전",
   running: "진행 중",

@@ -1,4 +1,5 @@
 import { Card, PageTitle } from "@/components/ui";
+import { OpenOnboardingButton } from "@/components/onboarding";
 
 const STEPS = [
   {
@@ -10,12 +11,12 @@ const STEPS = [
     d: "시즌 시작 전에 팀원이 함께 팀명과 빙고판 색(민트·핑크 중 하나)을 정하고, 미션을 칸에 놓아요. 대면 칸 5개에는 대면 미션 5개를 모두 놓고, 나머지 20칸에는 비대면 미션 중 20개를 골라 놓아요. 시작하면 판이 잠겨요.",
   },
   {
-    t: "비대면 미션은 매일 오전 7시 공지",
+    t: "비대면 미션은 매일 오전 8시 공지",
     d: "시작일부터 마지막 날까지 매일 1개씩 공지돼요. 공지된 당일 23:59까지 사진과 함께 인증해야 해요. 지난 미션은 소급 인증할 수 없어요.",
   },
   {
-    t: "대면 미션 5개는 시작일에 한꺼번에 공지",
-    d: "최종 마감일 전까지 언제든 팀원이 함께 수행하고 인증하면 칸이 채워져요.",
+    t: "대면 미션 5개는 처음 공개된 그대로",
+    d: "처음 공개된 대면 미션 5개를 판의 대면 칸에 넣어요. 최종 마감일 전까지 순서 상관없이 아무거나 팀원이 함께 수행하고 인증하면 칸이 채워져요.",
   },
   {
     t: "인증은 디스코드에서 /인증",
@@ -45,7 +46,7 @@ const FAQ = [
 export default function HowToPage() {
   return (
     <>
-      <PageTitle title="이용 방법" desc="짝꽁빙고는 이렇게 진행돼요" />
+      <PageTitle title="이용 방법" desc="짝꽁빙고는 이렇게 진행돼요" action={<OpenOnboardingButton className="btn btn-secondary" />} />
 
       <section className="mb-8 rounded-[2rem] bg-sun-soft p-6 sm:p-8">
         <span className="inline-flex rounded-full bg-white px-3 py-1 text-[13px] font-bold">인증하는 방법</span>
@@ -70,12 +71,12 @@ export default function HowToPage() {
       <h2 className="mb-3 mt-10 px-1 text-xl font-black tracking-[-0.03em]">시상은 이렇게 정해요</h2>
       <div className="grid gap-3 text-sm sm:grid-cols-2">
         <Card>
-          <p className="font-black">1등 · 2등 팀</p>
-          <p className="mt-1 text-sub">① 빙고 줄을 많이 채운 순서 → ② 빙고를 만들지 못했더라도 채운 칸이 많은 순서 → ③ 대면 미션을 많이 수행한 순서로 정해요.</p>
+          <p className="font-black">우수상 · 1등 · 2등 팀</p>
+          <p className="mt-1 text-sub">① 빙고 줄을 많이 채운 순서 → ② 빙고를 만들지 못했더라도 채운 칸이 많은 순서 → ③ 대면 미션을 많이 수행한 순서로 정해요. 우수상 팀에게는 MT 벌칙 면제권을 드려요.</p>
         </Card>
         <Card>
-          <p className="font-black">추첨 1팀</p>
-          <p className="mt-1 text-sub">1·2등을 제외한 팀 중 1팀을 뽑아 소정의 추가 상품을 드려요. 각 팀이 채운 칸의 개수만큼 쪽지를 받아서, 많이 수행할수록 당첨 확률이 올라가요. 추첨 과정은 임원진이 모여 촬영해요.</p>
+          <p className="font-black">MT 추첨권</p>
+          <p className="mt-1 text-sub">팀이 채운 칸 수만큼 팀원 1명당 MT 추첨권을 받아요. 예를 들어 7칸을 채우면 1인당 7장이에요. 우리 판에 없는 미션이 공지된 날도 쉬지 말고, 남은 대면 미션으로 한 칸이라도 더 채워 두면 좋아요.</p>
         </Card>
       </div>
 

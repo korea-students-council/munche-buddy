@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Avatar, Badge, EmptyState, PageTitle, StatCard, btn } from "@/components/ui";
-import { BingoBoard } from "@/components/bingo-board";
-import { eventPhase, getActiveEvent, getTodayRemoteMission } from "@/lib/event";
+import { DecoratedBoard } from "@/components/decorated-board";
+import { parseDecor } from "@/lib/decor";
+import { getUploadedStickers } from "@/lib/stickers-db";
+import { eventPhase, getActiveEvent, getTodayRemoteMission, rankingHidden } from "@/lib/event";
 import { getCurrentUser } from "@/lib/session";
-import { getStandings, getTeamBoardState, getTeamOfUser } from "@/lib/standings";
+import { getCellPhotos, getStandings, getTeamBoardState, getTeamOfUser } from "@/lib/standings";
 import { maxLines } from "@/lib/bingo";
 import { toBoardCells } from "@/lib/board-view";
 import { BOARD_SIZE, CELL_COUNT, FACE_COUNT } from "@/lib/rules";
@@ -47,13 +49,25 @@ export default async function TeamBoardPage({ params }: { params: Promise<{ team
     );
   }
 
-  const [standings, myTeamId, today] = await Promise.all([
+  const [standings, myTeamId, today, photos] = await Promise.all([
     getStandings(event.id),
     user ? getTeamOfUser(event.id, user.id) : null,
     getTodayRemoteMission(event.id, now),
+    getCellPhotos(event.id, team.id),
   ]);
   const rank = standings.find((s) => s.teamId === team.id)?.rank;
   const mine = team.id === myTeamId;
+  if (!mine && !user?.isAdmin && rankingHidden(event, now)) {
+    return (
+      <>
+        <PageTitle title={`${team.number}조`} action={back} />
+        <EmptyState>
+          <p className="text-xl font-black tracking-[-0.03em] text-ink">지금은 비공개 기간이에요</p>
+          <p className="mt-1">마지막 일주일은 다른 팀의 진행 상황을 숨겨요. 최종 결과 발표를 기대해 주세요!</p>
+        </EmptyState>
+      </>
+    );
+  }
 
   return (
     <>
@@ -76,10 +90,13 @@ export default async function TeamBoardPage({ params }: { params: Promise<{ team
         <StatCard label="대면" value={`${evaluation.faceCount}`} sub={`/ ${FACE_COUNT}개`} bg="bg-pink-soft" />
       </div>
 
-      <BingoBoard
+      <DecoratedBoard
+        decor={parseDecor(team.decor)}
+        stickers={await getUploadedStickers()}
+        canEdit={mine}
         n={BOARD_SIZE}
         color={team.color}
-        cells={toBoardCells(cells, evaluation.completedLines, event, today?.id ?? null, now)}
+        cells={toBoardCells(cells, evaluation.completedLines, event, today?.id ?? null, now, photos)}
         withCommand={mine}
       />
       {mine && (

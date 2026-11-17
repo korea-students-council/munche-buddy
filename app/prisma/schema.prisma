@@ -106,6 +106,8 @@ model Team {
   name        String    @default("")
   color       TeamColor @default(MINT)
   submittedAt DateTime?
+  /// 빙고판 꾸미기: { theme, items: [{ id, x, y, r, k }] } (점수와 무관)
+  decor       Json      @default("{}")
   createdAt   DateTime  @default(now())
 
   event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
@@ -190,4 +192,13 @@ model Winner {
   team  Team  @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, kind])
+}
+
+/// 운영진이 올린 빙고판 꾸미기 스티커 (권리가 확인된 이미지만)
+model Sticker {
+  id        String   @id @default(cuid())
+  name      String
+  /// data:image/...;base64 (300KB 이하)
+  data      String
+  createdAt DateTime @default(now())
 }

@@ -141,3 +141,6 @@ body {
   .pop { animation: none; }
   .btn, .field { transition: none; }
 }
+
+/* 시·분이 잘리지 않게 */
+.field[type="time"], .field[type="date"] { min-width: 9rem; font-variant-numeric: tabular-nums; }

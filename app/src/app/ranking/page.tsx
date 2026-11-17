@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Badge, Card, EmptyState, Notice, PageTitle } from "@/components/ui";
 import { db } from "@/lib/db";
-import { getActiveEvent } from "@/lib/event";
+import { getActiveEvent, rankingHidden } from "@/lib/event";
 import { getCurrentUser } from "@/lib/session";
 import { getStandings, getTeamOfUser } from "@/lib/standings";
 import { maxLines } from "@/lib/bingo";
@@ -21,6 +21,7 @@ export default async function RankingPage() {
   ]);
   const winnerKind = new Map(winners.map((w) => [w.teamId, w.kind]));
   const submitted = standings.filter((s) => s.submitted);
+  const hidden = rankingHidden(event) && !user?.isAdmin;
 
   return (
     <>
@@ -29,7 +30,12 @@ export default async function RankingPage() {
 
       <div className="flex flex-wrap items-start gap-6">
         <section className="min-w-0 flex-[999_1_34rem]">
-          {submitted.length === 0 ? (
+          {hidden ? (
+            <EmptyState>
+              <p className="text-xl font-black tracking-[-0.03em] text-ink">지금은 순위 비공개 기간이에요</p>
+              <p className="mt-1">박진감을 위해 마지막 일주일은 순위와 다른 팀 진행 상황을 숨겨요. 최종 결과 발표를 기대해 주세요!</p>
+            </EmptyState>
+          ) : submitted.length === 0 ? (
             <EmptyState>아직 빙고판을 제출한 팀이 없어요.</EmptyState>
           ) : (
             <ol className="flex flex-col gap-2.5">
@@ -83,7 +89,7 @@ export default async function RankingPage() {
             <li>그래도 같으면 대면 미션 수 ({FACE_COUNT}개 중)</li>
           </ol>
           <p className="mt-4 rounded-[1.2rem] bg-sun-soft p-4 text-sm">
-            1·2위 외 팀 중 한 팀은 <b>채운 칸 수만큼 추첨권</b>을 받아 추첨해요.
+            채운 칸 수만큼 <b>팀원 1명당 MT 추첨권</b>을 받아요. 7칸이면 1인당 7장!
           </p>
           <p className="mt-3 text-xs text-muted">운영진 검수로 인증이 반려되면 순위가 바뀔 수 있어요. 확정 전 순위는 잠정이에요. 팀을 누르면 그 팀의 빙고판을 볼 수 있어요.</p>
         </Card>

@@ -74,7 +74,7 @@ export default async function MissionsPage() {
         <EmptyState>
           <p className="text-2xl font-black tracking-[-0.04em] text-ink">시즌이 시작되면 미션이 공개돼요</p>
           <p className="mt-1">
-            {formatKst(event.startAt)} 시작 · 대면 미션은 시작과 함께, 비대면 미션은 매일 오전 7시에 하나씩 공개돼요. (미션 {missions.length}개: 대면 {face.length} · 비대면 {remote.length})
+            {formatKst(event.startAt)} 시작 · 대면 미션 5개는 미리 공개돼 기간 중 아무거나 하면 되고, 비대면 미션은 매일 오전 8시에 하나씩 공개돼요. (미션 {missions.length}개: 대면 {face.length} · 비대면 {remote.length})
           </p>
         </EmptyState>
       )}
@@ -103,7 +103,7 @@ export default async function MissionsPage() {
             {pastRemote.length === 0 && <p className="px-1 text-sm text-muted">아직 지난 미션이 없어요.</p>}
             {hiddenRemote > 0 && (
               <p className="mt-3 rounded-[1.3rem] bg-well px-4 py-3 text-center text-sm text-sub">
-                아직 공개되지 않은 비대면 미션이 {hiddenRemote}개 남아 있어요. 매일 오전 7시에 하나씩 열려요.
+                아직 공개되지 않은 비대면 미션이 {hiddenRemote}개 남아 있어요. 매일 오전 8시에 하나씩 열려요.
               </p>
             )}
           </section>

@@ -10,7 +10,7 @@ import { announceDueMissions } from "@/lib/announce";
 import { fetchGuildMember, registerGuildCommands } from "@/lib/discord";
 import { VERIFY_COMMAND } from "@/lib/interactions";
 import { safeNext } from "@/lib/env";
-import { FACE_COUNT, TEAM_MAX, TEAM_MIN } from "@/lib/rules";
+import { FACE_COUNT, REMOTE_COUNT, TEAM_MAX, TEAM_MIN } from "@/lib/rules";
 import { getCurrentUser } from "@/lib/session";
 import { getStandings } from "@/lib/standings";
 import { fromKstInput, kstDate } from "@/lib/time";
@@ -168,6 +168,33 @@ export async function addMissions(fd: FormData) {
   back("/admin/missions", "ok", `${lines.length}개의 ${type === "FACE" ? "대면" : "비대면"} 미션을 ${start}번부터 추가했어요.`);
 }
 
+/** 테스트용: 대면 미션을 5개까지, 비대면 미션을 30개 채운다 (일정은 자동 배정으로) */
+export async function addTestMissions(fd: FormData) {
+  await assertAdmin();
+  const eventId = str(fd, "eventId");
+  const [faceNow, last] = await Promise.all([
+    db.mission.count({ where: { eventId, type: "FACE" } }),
+    db.mission.aggregate({ where: { eventId }, _max: { number: true } }),
+  ]);
+  let n = (last._max.number ?? 0) + 1;
+  const face = Array.from({ length: Math.max(0, FACE_COUNT - faceNow) }, (_, i) => ({
+    eventId, number: n++, type: "FACE" as const, title: `대면${faceNow + i + 1}`,
+  }));
+  const remoteN = Math.max(30, REMOTE_COUNT);
+  const remote = Array.from({ length: remoteN }, (_, i) => ({ eventId, number: n++, type: "REMOTE" as const, title: `비대면${i + 1}` }));
+  await db.mission.createMany({ data: [...face, ...remote] });
+  back("/admin/missions", "ok", `테스트 미션을 넣었어요. 대면 ${face.length}개 · 비대면 ${remote.length}개 (비대면 일정은 자동 배정으로 정해 주세요)`);
+}
+
+/** 시즌과 그 안의 미션·팀·인증 기록을 모두 지운다 */
+export async function deleteEvent(fd: FormData) {
+  await assertAdmin();
+  const ev = await db.event.findUnique({ where: { id: str(fd, "id") } });
+  if (!ev) back("/admin/event", "error", "시즌을 찾을 수 없어요.");
+  await db.event.delete({ where: { id: ev.id } });
+  back("/admin/event", "ok", `"${ev.name}" 시즌을 삭제했어요.`);
+}
+
 export async function updateMission(fd: FormData) {
   await assertAdmin();
   const id = str(fd, "id");
@@ -185,7 +212,7 @@ export async function updateMission(fd: FormData) {
   };
   const day = str(fd, "day");
   if (type === "REMOTE" && day) {
-    const publishAt = kstDate(day, str(fd, "publishTime") || "07:00");
+    const publishAt = kstDate(day, str(fd, "publishTime") || "08:00");
     const closeAt = kstDate(day, str(fd, "deadlineTime") || "23:59");
     if (!publishAt || !closeAt) back("/admin/missions", "error", "공지 날짜와 시각을 확인해 주세요.");
     const deadlineAt = endOfMinute(closeAt);
@@ -239,12 +266,12 @@ export async function deleteMission(fd: FormData) {
   back("/admin/missions", "ok", "미션을 삭제했어요.");
 }
 
-/** 일정이 없는 비대면 미션을 시작 날짜부터 하루에 하나씩 자동 배정 (기본 07:00 공지, 23:59 마감) */
+/** 일정이 없는 비대면 미션을 시작 날짜부터 하루에 하나씩 자동 배정 (기본 08:00 공지, 23:59 마감) */
 export async function autoSchedule(fd: FormData) {
   await assertAdmin();
   const eventId = str(fd, "eventId");
   const startDay = str(fd, "startDay");
-  const pubTime = str(fd, "publishTime") || "07:00";
+  const pubTime = str(fd, "publishTime") || "08:00";
   const dlTime = str(fd, "deadlineTime") || "23:59";
   if (!/^\d{4}-\d{2}-\d{2}$/.test(startDay)) back("/admin/missions", "error", "시작 날짜를 선택해 주세요.");
   if (dlTime <= pubTime) back("/admin/missions", "error", "마감 시각은 공지 시각보다 늦어야 해요.");
@@ -432,6 +459,40 @@ export async function assignMember(fd: FormData) {
   back("/admin/teams", "ok", `${info.name}님을 ${team.number}조에 넣었어요.`);
 }
 
+/**
+ * 드래그 앤 드롭 팀 편성: 배정 대기 ↔ 팀, 팀 ↔ 팀. 화면을 새로 그리도록 결과만 돌려준다.
+ * person 은 서버 멤버 목록에서 온 디스코드 정보(id·name·avatar)다.
+ */
+export async function placeMember(input: {
+  person: { id: string; name: string; avatar: string | null };
+  toTeamId: string | null;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  await assertAdmin();
+  const { person, toTeamId } = input;
+  const user = await db.user.upsert({
+    where: { discordId: person.id },
+    create: { discordId: person.id, name: person.name.slice(0, 32), avatar: person.avatar },
+    update: {},
+  });
+  const target = toTeamId
+    ? await db.team.findUnique({ where: { id: toTeamId }, include: { _count: { select: { members: true } } } })
+    : null;
+  if (toTeamId && !target) return { ok: false, error: "팀을 찾을 수 없어요." };
+  const eventId = target?.eventId ?? (await db.event.findFirst({ where: { isActive: true } }))?.id;
+  if (!eventId) return { ok: false, error: "활성 시즌이 없어요." };
+  const current = await db.teamMember.findUnique({ where: { eventId_userId: { eventId, userId: user.id } } });
+
+  if (!target) {
+    if (current) await db.teamMember.delete({ where: { id: current.id } });
+    return { ok: true };
+  }
+  if (current?.teamId === target.id) return { ok: true };
+  if (target._count.members >= TEAM_MAX) return { ok: false, error: `${target.number}조는 이미 ${TEAM_MAX}명이에요.` };
+  if (current) await db.teamMember.update({ where: { id: current.id }, data: { teamId: target.id } });
+  else await db.teamMember.create({ data: { eventId, teamId: target.id, userId: user.id } });
+  return { ok: true };
+}
+
 /** 팀원을 다른 팀으로 옮긴다 */
 export async function moveMember(fd: FormData) {
   await assertAdmin();
@@ -603,4 +664,27 @@ export async function runAnnounceNow() {
   const r = await announceDueMissions();
   if (r.errors > 0) back("/admin/event", "error", `공지 중 ${r.errors}건이 실패했어요. 공지 채널 ID와 봇 권한을 확인해 주세요.`);
   back("/admin/event", "ok", r.remote + r.face === 0 ? "지금 공지할 미션이 없어요." : `비대면 ${r.remote}건, 대면 ${r.face}건을 공지했어요.`);
+}
+
+const STICKER_TYPES = ["image/png", "image/webp", "image/gif", "image/jpeg", "image/svg+xml"];
+const STICKER_MAX = 300 * 1024;
+
+/** 꾸미기 스티커 올리기. 운영진이 사용 권리를 확인한 이미지만 올린다. */
+export async function uploadSticker(fd: FormData) {
+  await assertAdmin();
+  const name = str(fd, "name").slice(0, 20) || "스티커";
+  const file = fd.get("file");
+  if (!(file instanceof File) || file.size === 0) back("/admin/stickers", "error", "이미지를 골라 주세요.");
+  const f = file as File;
+  if (!STICKER_TYPES.includes(f.type)) back("/admin/stickers", "error", "PNG·WEBP·GIF·JPG·SVG만 올릴 수 있어요.");
+  if (f.size > STICKER_MAX) back("/admin/stickers", "error", "300KB 이하 이미지만 올릴 수 있어요.");
+  const data = `data:${f.type};base64,${Buffer.from(await f.arrayBuffer()).toString("base64")}`;
+  await db.sticker.create({ data: { name, data } });
+  back("/admin/stickers", "ok", `"${name}" 스티커를 올렸어요.`);
+}
+
+export async function deleteSticker(fd: FormData) {
+  await assertAdmin();
+  await db.sticker.deleteMany({ where: { id: str(fd, "id") } });
+  back("/admin/stickers", "ok", "스티커를 지웠어요. 이미 붙인 판에서도 사라져요.");
 }

@@ -1,10 +1,12 @@
 import { Avatar, EmptyState, Notice, PageTitle, StatCard, btn } from "@/components/ui";
-import { BingoBoard } from "@/components/bingo-board";
+import { DecoratedBoard } from "@/components/decorated-board";
+import { parseDecor } from "@/lib/decor";
+import { getUploadedStickers } from "@/lib/stickers-db";
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { eventPhase, getActiveEvent, getTodayRemoteMission } from "@/lib/event";
+import { eventPhase, getActiveEvent, getTodayRemoteMission, rankingHidden } from "@/lib/event";
 import { requireUser } from "@/lib/session";
-import { getStandings, getTeamBoardState, getTeamOfUser } from "@/lib/standings";
+import { getCellPhotos, getStandings, getTeamBoardState, getTeamOfUser } from "@/lib/standings";
 import { maxLines } from "@/lib/bingo";
 import { toBoardCells } from "@/lib/board-view";
 import { BOARD_SIZE, CELL_COUNT, FACE_COUNT, REMOTE_COUNT } from "@/lib/rules";
@@ -95,7 +97,12 @@ export default async function BoardPage() {
   }
 
   // ── 시작 후: 현황 ──────────────────────────────────────────
-  const [standings, today] = await Promise.all([getStandings(event.id), getTodayRemoteMission(event.id, now)]);
+  const [standings, today, stickers, photos] = await Promise.all([
+    getStandings(event.id),
+    getTodayRemoteMission(event.id, now),
+    getUploadedStickers(),
+    getCellPhotos(event.id, team.id),
+  ]);
   const me = standings.find((s) => s.teamId === team.id);
   const { evaluation } = state;
 
@@ -113,22 +120,29 @@ export default async function BoardPage() {
       {members}
 
       <div className="mb-6 grid grid-cols-4 gap-2 sm:max-w-xl">
-        <StatCard label="순위" value={me ? `${me.rank}위` : "-"} sub={`${standings.filter((s) => s.submitted).length}팀 중`} bg="bg-white" />
+        <StatCard label="순위" value={rankingHidden(event, now) ? "비공개" : me ? `${me.rank}위` : "-"} sub={`${standings.filter((s) => s.submitted).length}팀 중`} bg="bg-white" />
         <StatCard label="빙고" value={`${evaluation.lines}줄`} sub={`최대 ${maxLines(BOARD_SIZE)}줄`} bg="bg-mint-soft" />
         <StatCard label="채운 칸" value={`${evaluation.filled}`} sub={`/ ${CELL_COUNT}칸`} bg="bg-white" />
         <StatCard label="대면" value={`${evaluation.faceCount}`} sub={`/ ${FACE_COUNT}개`} bg="bg-pink-soft" />
       </div>
 
+      <p className="mb-6 -mt-3 px-1 text-sm text-sub">
+        지금까지 팀원 1명당 <b className="text-ink">MT 추첨권 {evaluation.filled}장</b> · 채운 칸 수만큼 받아요
+      </p>
+
       {phase === "running" && today && !state.cells.some((c) => c.missionId === today.id) && (
         <Notice tone="gray">
-          오늘의 미션 {today.number}번 &ldquo;{today.title}&rdquo;은 우리 팀 빙고판에 없어요. 대면 미션이나 다음 미션을 노려 봐요!
+          오늘의 미션 {today.number}번 &ldquo;{today.title}&rdquo;은 우리 팀 빙고판에 없어요. 그래도 쉬는 날은 아니에요! 남은 대면 미션으로 한 칸 더 채우면 MT 추첨권이 늘어나요.
         </Notice>
       )}
 
-      <BingoBoard
+      <DecoratedBoard
+        decor={parseDecor(team.decor)}
+        stickers={stickers}
+        canEdit
         n={BOARD_SIZE}
         color={team.color}
-        cells={toBoardCells(state.cells, evaluation.completedLines, event, today?.id ?? null, now)}
+        cells={toBoardCells(state.cells, evaluation.completedLines, event, today?.id ?? null, now, photos)}
         withCommand={phase === "running"}
       />
       <p className="mt-5 px-1 text-xs text-muted">운영진 검수로 인증이 반려되면 칸이 다시 비워질 수 있어요.</p>

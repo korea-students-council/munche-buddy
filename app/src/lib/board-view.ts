@@ -13,6 +13,7 @@ export function toBoardCells(
   event: Pick<Event, "endAt">,
   todayMissionId: string | null,
   now = new Date(),
+  photos?: Map<string, string>,
 ): BoardCell[] {
   const lines = allLines(BOARD_SIZE);
   const inLine = new Set<number>();
@@ -29,6 +30,7 @@ export function toBoardCells(
     inLine: inLine.has(position),
     today: m.id === todayMissionId,
     when: describeWindow(m, event, filledAt, now),
+    photo: filledAt ? photos?.get(m.id) : undefined,
   }));
 }
 

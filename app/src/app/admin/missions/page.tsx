@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { getActiveEvent } from "@/lib/event";
 import { FACE_COUNT, REMOTE_COUNT } from "@/lib/rules";
 import { kstDay, toKstInput } from "@/lib/time";
-import { addMissions, autoSchedule, deleteMission, updateMission } from "../actions";
+import { addMissions, addTestMissions, autoSchedule, deleteMission, updateMission } from "../actions";
 import type { Mission } from "@prisma/client";
 
 export default async function MissionsAdminPage({
@@ -67,6 +67,13 @@ export default async function MissionsAdminPage({
             />
             <button className={btn.primary}>추가</button>
           </form>
+          <form action={addTestMissions} className="mt-3 border-t border-line pt-3">
+            <input type="hidden" name="eventId" value={event.id} />
+            <ConfirmButton message={`테스트 미션(대면1~${FACE_COUNT}, 비대면1~30)을 넣을까요?`} className={btn.small}>
+              테스트 미션 한 번에 넣기
+            </ConfirmButton>
+            <span className="ml-2 text-xs text-muted">대면 {FACE_COUNT}개까지 · 비대면 30개</span>
+          </form>
         </Card>
 
         <Card>
@@ -76,12 +83,14 @@ export default async function MissionsAdminPage({
           </p>
           <form action={autoSchedule} className="space-y-3">
             <input type="hidden" name="eventId" value={event.id} />
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
               <Field label="시작 날짜">
                 <input type="date" name="startDay" required defaultValue={kstDay(event.startAt)} className={inputCls} />
               </Field>
+              </div>
               <Field label="공지 시각">
-                <input type="time" name="publishTime" defaultValue="07:00" required className={inputCls} />
+                <input type="time" name="publishTime" defaultValue="08:00" required className={inputCls} />
               </Field>
               <Field label="마감 시각">
                 <input type="time" name="deadlineTime" defaultValue="23:59" required className={inputCls} />
@@ -157,7 +166,7 @@ function MissionForm({ m, holders }: { m: Mission; holders: number }) {
             <input type="date" name="day" defaultValue={m.day ?? ""} disabled={face} className={inputCls} />
           </Field>
           <Field label="공지 시각">
-            <input type="time" name="publishTime" defaultValue={m.publishAt ? toKstInput(m.publishAt).slice(11) : "07:00"} disabled={face} className={inputCls} />
+            <input type="time" name="publishTime" defaultValue={m.publishAt ? toKstInput(m.publishAt).slice(11) : "08:00"} disabled={face} className={inputCls} />
           </Field>
           <Field label="마감 시각">
             <input type="time" name="deadlineTime" defaultValue={m.deadlineAt ? toKstInput(m.deadlineAt).slice(11) : "23:59"} disabled={face} className={inputCls} />

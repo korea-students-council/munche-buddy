@@ -1,9 +1,11 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { eventPhase, getActiveEvent } from "@/lib/event";
 import { CELL_COUNT, isFacePosition } from "@/lib/rules";
 import { getCurrentUser } from "@/lib/session";
+import { parseDecor } from "@/lib/decor";
 
 export type SaveBoardResult = { ok: true } | { ok: false; error: string };
 
@@ -67,5 +69,20 @@ export async function saveTeamBoard(input: SaveBoardInput): Promise<SaveBoardRes
     });
   });
 
+  return { ok: true };
+}
+
+/** 빙고판 꾸미기 저장. 팀원이면 언제든 바꿀 수 있다 (점수와 무관). */
+export async function saveDecor(input: unknown): Promise<SaveBoardResult> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "로그인이 필요해요." };
+  const event = await getActiveEvent();
+  if (!event) return { ok: false, error: "진행 중인 시즌이 없어요." };
+  const m = await db.teamMember.findUnique({ where: { eventId_userId: { eventId: event.id, userId: user.id } } });
+  if (!m) return { ok: false, error: "아직 팀에 배정되지 않았어요." };
+  const decor = parseDecor(input);
+  await db.team.update({ where: { id: m.teamId }, data: { decor } });
+  revalidatePath("/board");
+  revalidatePath(`/teams/${m.teamId}`);
   return { ok: true };
 }

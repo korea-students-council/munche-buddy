@@ -4,7 +4,7 @@ import { Badge, Card, EmptyState, MoreLink, Notice, Progress, StatCard, btn } fr
 import { Pair3D } from "@/components/pair-3d";
 import { Countdown } from "@/components/countdown";
 import { db } from "@/lib/db";
-import { PHASE_LABEL, eventPhase, getActiveEvent, getNextRemoteMission, getTodayRemoteMission } from "@/lib/event";
+import { PHASE_LABEL, eventPhase, getActiveEvent, getNextRemoteMission, getTodayRemoteMission, rankingHidden } from "@/lib/event";
 import { getCurrentUser } from "@/lib/session";
 import { getStandings, getTeamBoardState, getTeamOfUser } from "@/lib/standings";
 import { formatKst, kstDay } from "@/lib/time";
@@ -86,6 +86,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     { label: "2등 팀", text: event.prize2 },
     { label: "추첨 1팀", text: event.prizeRaffle },
   ];
+  const rankHidden = rankingHidden(event) && !user?.isAdmin;
   const top = standings.filter((s) => s.filled > 0).slice(0, 3);
   const name = user?.name ?? "";
 
@@ -206,7 +207,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </div>
               <Progress value={myTeam.filled} max={CELL_COUNT} />
               <div className="grid grid-cols-3 gap-2">
-                <StatCard label="순위" value={`${myTeam.rank}위`} />
+                <StatCard label="순위" value={rankHidden ? "비공개" : `${myTeam.rank}위`} />
                 <StatCard label="빙고" value={`${myTeam.lines}줄`} bg="bg-mint-soft" />
                 <StatCard label="대면" value={`${myTeam.faceCount} / ${FACE_COUNT}`} bg="bg-pink-soft" />
               </div>
@@ -292,6 +293,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 </li>
               ))}
             </ol>
+          ) : rankHidden ? (
+            <p className="py-8 text-center text-sm text-muted">마지막 일주일은 순위를 비공개해요. 결과 발표를 기대해 주세요!</p>
           ) : top.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted">아직 빙고를 채운 팀이 없어요.</p>
           ) : (
@@ -330,7 +333,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-xs text-muted">1·2등을 제외한 팀 중 1팀은 채운 칸 수만큼 추첨권을 받아 추첨해요.</p>
+        <p className="mt-3 text-xs text-muted">채운 칸 수만큼 팀원 1명당 MT 추첨권을 받아요. (7칸 → 1인당 7장)</p>
       </Card>
     </div>
   );

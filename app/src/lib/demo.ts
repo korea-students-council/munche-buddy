@@ -150,7 +150,7 @@ export async function createDemoSeason(opts: {
         const day = dayOffset(i - 3);
         const isToday = day === todayKst;
         // 오늘 미션은 지금 열려 있도록 (데모를 언제 돌려도 인증해 볼 수 있게)
-        const publishAt = isToday ? new Date(now.getTime() - HOUR) : kst(day, "07:00");
+        const publishAt = isToday ? new Date(now.getTime() - HOUR) : kst(day, "08:00");
         const deadlineAt = isToday ? new Date(now.getTime() + 6 * HOUR) : new Date(kst(day, "23:59").getTime() + 59_999);
         return {
           eventId: event.id,

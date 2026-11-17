@@ -4,7 +4,8 @@ import { db } from "@/lib/db";
 import { PHASE_LABEL, eventPhase, getActiveEvent } from "@/lib/event";
 import { formatKst, toKstInput } from "@/lib/time";
 import { appUrl } from "@/lib/env";
-import { activateEvent, registerSlashCommand, runAnnounceNow, saveEvent } from "../actions";
+import { activateEvent, deleteEvent, registerSlashCommand, runAnnounceNow, saveEvent } from "../actions";
+import { ConfirmButton } from "@/components/confirm-button";
 
 export default async function EventPage({
   searchParams,
@@ -51,7 +52,7 @@ export default async function EventPage({
             <Field label="서버(길드) ID">
               <input name="guildId" defaultValue={e?.guildId ?? ""} inputMode="numeric" className={inputCls} />
             </Field>
-            <Field label="미션 공지 채널 ID" hint="매일 오전 7시 비대면 미션을 공지해요">
+            <Field label="미션 공지 채널 ID" hint="매일 오전 8시 비대면 미션을 공지해요">
               <input name="announceChannelId" defaultValue={e?.announceChannelId ?? ""} inputMode="numeric" className={inputCls} />
             </Field>
             <Field label="인증 채널 ID" hint="/인증 명령은 이 채널에서만 동작해요">
@@ -99,7 +100,7 @@ export default async function EventPage({
             <Status ok={!!process.env.DISCORD_PUBLIC_KEY} label="DISCORD_PUBLIC_KEY (포털의 Public Key)" />
             <Status ok={!!process.env.DISCORD_BOT_TOKEN} label="DISCORD_BOT_TOKEN" />
             <Status ok={!!process.env.DISCORD_CLIENT_ID} label="DISCORD_CLIENT_ID" />
-            <Status ok={!!process.env.CRON_SECRET} label="CRON_SECRET (매일 7시 자동 공지)" />
+            <Status ok={!!process.env.CRON_SECRET} label="CRON_SECRET (매일 8시 자동 공지)" />
           </ul>
           <div className="flex flex-wrap gap-2">
             <form action={registerSlashCommand}>
@@ -110,12 +111,12 @@ export default async function EventPage({
             </form>
           </div>
           <p className="text-xs text-muted">
-            미션 공지는 매일 오전 7시대에 자동으로 올라가요. 무료 플랜에서는 7시대 중 한 시점에 실행돼서, 급하면 &quot;지금 미션 공지 실행&quot;을 눌러도 돼요.
+            미션 공지는 매일 오전 8시대에 자동으로 올라가요. 무료 플랜에서는 8시대 중 한 시점에 실행돼서, 급하면 &quot;지금 미션 공지 실행&quot;을 눌러도 돼요.
           </p>
         </Card>
       )}
 
-      {all.length > 1 && (
+      {all.length > 0 && (
         <Card className="mt-8">
           <h2 className="mb-3 font-black">전체 시즌</h2>
           <ul className="divide-y divide-line text-sm">
@@ -134,6 +135,15 @@ export default async function EventPage({
                       <button className={btn.small}>활성화</button>
                     </form>
                   )}
+                  <form action={deleteEvent}>
+                    <input type="hidden" name="id" value={ev.id} />
+                    <ConfirmButton
+                      message={`"${ev.name}" 시즌을 삭제할까요? 미션·팀·인증 기록이 모두 지워지고 되돌릴 수 없어요.`}
+                      className="btn btn-danger btn-small"
+                    >
+                      삭제
+                    </ConfirmButton>
+                  </form>
                 </span>
               </li>
             ))}

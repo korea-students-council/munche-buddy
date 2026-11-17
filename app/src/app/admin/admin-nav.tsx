@@ -8,6 +8,7 @@ const ITEMS = [
   { href: "/admin/event", label: "시즌 설정" },
   { href: "/admin/missions", label: "미션 관리" },
   { href: "/admin/teams", label: "팀 관리" },
+  { href: "/admin/stickers", label: "스티커" },
   { href: "/admin/submissions", label: "인증 검수" },
   { href: "/admin/ranking", label: "순위·시상" },
 ];
