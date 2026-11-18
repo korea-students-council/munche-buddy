@@ -82,9 +82,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   }
 
   const prizes = [
-    { label: "1등 팀", text: event.prize1 },
-    { label: "2등 팀", text: event.prize2 },
-    { label: "추첨 1팀", text: event.prizeRaffle },
+    // 이번 시즌 시상은 고정: 우수상(1·2등) MT 벌칙 면제권, 모든 팀 MT 추첨권
+    { label: "우수상 · 1등 팀", text: "MT 벌칙 면제권" },
+    { label: "우수상 · 2등 팀", text: "MT 벌칙 면제권" },
+    { label: "모든 팀", text: "채운 칸 수만큼 1인당 MT 추첨권" },
   ];
   const rankHidden = rankingHidden(event) && !user?.isAdmin;
   const top = standings.filter((s) => s.filled > 0).slice(0, 3);
@@ -329,7 +330,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           {prizes.map((p, i) => (
             <li key={p.label} className={`rounded-[1.3rem] p-4 ${i === 2 ? "bg-pink-soft" : "bg-mint-soft"}`}>
               <p className="text-xs font-bold text-sub">{p.label}</p>
-              <p className="mt-1 font-black">{p.text || "상품 준비 중"}</p>
+              <p className="mt-1 font-black">{p.text}</p>
             </li>
           ))}
         </ul>

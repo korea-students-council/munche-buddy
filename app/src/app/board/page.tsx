@@ -9,7 +9,7 @@ import { requireUser } from "@/lib/session";
 import { getCellPhotos, getStandings, getTeamBoardState, getTeamOfUser } from "@/lib/standings";
 import { maxLines } from "@/lib/bingo";
 import { toBoardCells } from "@/lib/board-view";
-import { BOARD_SIZE, CELL_COUNT, FACE_COUNT, REMOTE_COUNT } from "@/lib/rules";
+import { BOARD_SIZE, CELL_COUNT, FACE_COUNT, FACE_POSITIONS, REMOTE_COUNT } from "@/lib/rules";
 import { formatKst, remaining } from "@/lib/time";
 import { BoardEditor } from "./board-editor";
 
@@ -82,6 +82,34 @@ export default async function BoardPage() {
             />
           </>
         )}
+
+        {/* 꾸미기는 시즌 시작과 상관없이 언제든 할 수 있다 (점수와 무관) */}
+        <h2 className="mb-1 mt-10 px-1 text-xl font-black tracking-[-0.03em]">판 꾸미기</h2>
+        <p className="mb-4 px-1 text-sm text-sub">스티커와 색으로 우리 팀 판을 꾸며요. 시즌이 시작돼도 그대로 남고, 언제든 바꿀 수 있어요.</p>
+        <DecoratedBoard
+          decor={parseDecor(team.decor)}
+          stickers={await getUploadedStickers()}
+          canEdit
+          n={BOARD_SIZE}
+          color={team.color}
+          cells={
+            state.cells.length === CELL_COUNT
+              ? toBoardCells(state.cells, [], event, null, now)
+              : Array.from({ length: CELL_COUNT }, (_, p) => ({
+                  position: p,
+                  number: p + 1,
+                  title: "",
+                  description: "",
+                  face: FACE_POSITIONS.includes(p),
+                  requirePhoto: false,
+                  filled: false,
+                  inLine: false,
+                  today: false,
+                  when: "미션을 놓고 저장하면 이 칸에 보여요.",
+                }))
+          }
+          withCommand={false}
+        />
       </>
     );
   }
